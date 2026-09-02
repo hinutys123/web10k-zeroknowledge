@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arcade Neon | Pabellón de Juegos</title>
+    <!-- Google Fonts estilo Arcade / Retro -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <!-- GSAP para animaciones -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #05050a;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        /* Header Estilo Neón */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.2rem 5%;
+            background: rgba(5, 5, 10, 0.85);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            border-bottom: 2px solid rgba(0, 243, 255, 0.2);
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.1);
+        }
+        .logo {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 1.1rem;
+            color: #00f3ff;
+            text-decoration: none;
+            text-shadow: 0 0 10px rgba(0, 243, 255, 0.8), 0 0 20px rgba(0, 243, 255, 0.4);
+        }
+        nav a {
+            color: #b8b8d0;
+            text-decoration: none;
+            margin-left: 2rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: color 0.3s, text-shadow 0.3s;
+        }
+        nav a:hover, nav a.active {
+            color: #ff007f;
+            text-shadow: 0 0 10px rgba(255, 0, 127, 0.8);
+        }
+
+        /* Hero Neón / Arcade */
+        .hero-arcade {
+            height: 75vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 0 1rem;
+            background: radial-gradient(circle at center, #1a0b2e 0%, #05050a 70%);
+            position: relative;
+        }
+        .hero-arcade::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #ff007f, #00f3ff, #ffe600);
+            box-shadow: 0 0 15px #ff007f, 0 0 30px #00f3ff;
+        }
+        .hero-arcade h1 {
+            font-family: 'Press Start 2P', monospace;
+            font-size: clamp(1.8rem, 4vw, 3.5rem);
+            margin-bottom: 1.5rem;
+            color: #ffe600;
+            text-shadow: 0 0 10px rgba(255, 230, 0, 0.8), 0 0 30px rgba(255, 0, 127, 0.6);
+            opacity: 0;
+            transform: translateY(30px);
+            line-height: 1.4;
+        }
+        .hero-arcade p {
+            font-size: clamp(1rem, 2vw, 1.2rem);
+            color: #d1d1e9;
+            max-width: 600px;
+            opacity: 0;
+            transform: translateY(30px);
+            text-shadow: 0 0 5px rgba(0, 243, 255, 0.4);
+        }
+
+        /* Secciones y Cuadrícula Estilo Máquina de Arcade */
+        section {
+            padding: 5rem 8%;
+        }
+        .arcade-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2.5rem;
+            margin-top: 3rem;
+        }
+        .arcade-card {
+            background: rgba(18, 18, 35, 0.7);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            padding: 2.5rem;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+        }
+        .arcade-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: #00f3ff;
+            transition: background 0.3s;
+        }
+        .arcade-card:hover {
+            transform: translateY(-8px);
+            border-color: #00f3ff;
+            box-shadow: 0 0 25px rgba(0, 243, 255, 0.3);
+        }
+        .arcade-card:hover::before {
+            background: #ff007f;
+            box-shadow: 0 0 10px #ff007f;
+        }
+
+        .arcade-card h3 {
+            font-size: 1.6rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            color: #fff;
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+        }
+        .arcade-card p {
+            color: #aaaad0;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+        }
+        
+        /* Botones Neón Interactivos */
+        .arcade-btn {
+            display: inline-block;
+            padding: 0.9rem 2rem;
+            background: transparent;
+            color: #00f3ff;
+            border: 2px solid #00f3ff;
+            text-align: center;
+            text-decoration: none;
+            font-weight: 800;
+            letter-spacing: 1px;
+            border-radius: 8px;
+            text-transform: uppercase;
+            box-shadow: 0 0 10px rgba(0, 243, 255, 0.2);
+            transition: background 0.3s, color 0.3s, box-shadow 0.3s, transform 0.3s;
+        }
+        .arcade-btn:hover {
+            background: #00f3ff;
+            color: #05050a;
+            box-shadow: 0 0 25px rgba(0, 243, 255, 0.8), 0 0 50px rgba(0, 243, 255, 0.4);
+            transform: scale(1.03);
+        }
+
+        /* Variación de colores para cada tarjeta */
+        .arcade-card.pink:hover {
+            border-color: #ff007f;
+            box-shadow: 0 0 25px rgba(255, 0, 127, 0.3);
+        }
+        .arcade-card.pink .arcade-btn {
+            color: #ff007f;
+            border-color: #ff007f;
+            box-shadow: 0 0 10px rgba(255, 0, 127, 0.2);
+        }
+        .arcade-card.pink .arcade-btn:hover {
+            background: #ff007f;
+            color: #05050a;
+            box-shadow: 0 0 25px rgba(255, 0, 127, 0.8), 0 0 50px rgba(255, 0, 127, 0.4);
+        }
+
+        .arcade-card.yellow:hover {
+            border-color: #ffe600;
+            box-shadow: 0 0 25px rgba(255, 230, 0, 0.3);
+        }
+        .arcade-card.yellow .arcade-btn {
+            color: #ffe600;
+            border-color: #ffe600;
+            box-shadow: 0 0 10px rgba(255, 230, 0, 0.2);
+        }
+        .arcade-card.yellow .arcade-btn:hover {
+            background: #ffe600;
+            color: #05050a;
+            box-shadow: 0 0 25px rgba(255, 230, 0, 0.8), 0 0 50px rgba(255, 230, 0, 0.4);
+        }
+
+        /* Footer Arcade */
+        footer {
+            padding: 3rem 8%;
+            text-align: center;
+            background: #030307;
+            color: #666688;
+            font-size: 0.85rem;
+            border-top: 2px solid rgba(255, 255, 255, 0.05);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="index.html" class="logo">&lt;ARCADE_ZONE&gt;</a>
+        <nav>
+            <a href="index.html">Inicio</a>
+            <a href="museum.html">Museo 3D</a>
+            <a href="pabellondejuegos.html" class="active">Pabellón</a>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Hero Neon Arcade -->
+        <section class="hero-arcade">
+            <h1>INSERT COIN TO PLAY</h1>
+            <p>Salón de juegos arcade virtual. Luces de neón, lógica implacable y desarrollo puro en JavaScript.</p>
+        </section>
+
+        <!-- Sección de Selección -->
+        <section>
+            <h2 style="font-family: 'Press Start 2P', monospace; font-size: 1.5rem; margin-bottom: 1rem; color: #00f3ff; text-shadow: 0 0 10px rgba(0,243,255,0.5);">SELECCIONA TU NIVEL</h2>
+            <p style="color: #aaaad0; max-width: 600px; line-height: 1.6;">
+                Escoge una máquina para desafiar tus límites lógicos. Cada juego cuenta con su propio motor de eventos y animaciones integradas.
+            </p>
+            
+            <div class="arcade-grid">
+                <!-- Ahorcado -->
+                <div class="arcade-card">
+                    <div>
+                        <h3>AHORCADO_V1</h3>
+                        <p>Descubre la palabra secreta oculta antes de que se complete el circuito y pierdas la conexión en este clásico desafío de letras.</p>
+                    </div>
+                    <a href="ahorcado.html" class="arcade-btn">Iniciar Juego</a>
+                </div>
+
+                <!-- Buscaminas -->
+                <div class="arcade-card pink">
+                    <div>
+                        <h3>BUSCAMINAS_PRO</h3>
+                        <p>Despeja el sector de celdas utilizando probabilidades numéricas. Un solo error y el sistema colapsará por completo.</p>
+                    </div>
+                    <a href="buscaminas.html" class="arcade-btn">Iniciar Juego</a>
+                </div>
+
+                <!-- Preguntados -->
+                <div class="arcade-card yellow">
+                    <div>
+                        <h3>TRIVIA_NEXUS</h3>
+                        <p>Demuestra tu dominio absoluto de la cultura geek, historia y desarrollo web respondiendo bajo presión de tiempo.</p>
+                    </div>
+                    <a href="preguntados.html" class="arcade-btn">Iniciar Juego</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Aetheria Arcade Zone. Todos los sistemas operativos operando al 100%.</p>
+    </footer>
+
+    <script>
+        // Animaciones GSAP estilo arcade
+        window.addEventListener('DOMContentLoaded', () => {
+            const tl = gsap.timeline();
+            tl.to(".hero-arcade h1", { opacity: 1, y: 0, duration: 1, ease: "power3.out" })
+              .to(".hero-arcade p", { opacity: 1, y: 0, duration: 1, ease: "power3.out" }, "-=0.6");
+        });
+    </script>
+</body>
+</html>
