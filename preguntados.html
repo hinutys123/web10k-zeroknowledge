@@ -189,5 +189,13 @@
 
         initGame();
     </script>
+    <script>
+    // Verificar si el usuario ha iniciado sesión
+    if (localStorage.getItem('aetheria_logged') !== 'true') {
+        // Guardar la página a la que quería ir para redirigirlo luego
+        localStorage.setItem('aetheria_redirect', window.location.href);
+        window.location.href = 'auth.html';
+    }
+     </script>
 </body>
 </html>
