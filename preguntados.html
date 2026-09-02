@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arcade Zone | Trivia Nexus</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #05050a;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #ffe600;
+            text-decoration: none;
+            font-weight: 600;
+            border: 1px solid #ffe600;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            box-shadow: 0 0 10px rgba(255, 230, 0, 0.2);
+            transition: 0.3s;
+        }
+        .back-btn:hover { background: #ffe600; color: #05050a; }
+        h1 {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 1.3rem;
+            color: #ffe600;
+            margin-bottom: 1.5rem;
+            text-shadow: 0 0 10px rgba(255,230,0,0.6);
+            text-align: center;
+        }
+        .game-container {
+            background: rgba(18, 18, 35, 0.8);
+            border: 2px solid #ffe600;
+            padding: 2.5rem;
+            border-radius: 16px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 0 25px rgba(255, 230, 0, 0.2);
+        }
+        .question {
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+            color: #d1d1e9;
+        }
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .option-btn {
+            background: #111122;
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            text-align: left;
+            transition: 0.2s;
+        }
+        .option-btn:hover:not(:disabled) {
+            background: #ffe600;
+            color: #05050a;
+            border-color: #ffe600;
+            box-shadow: 0 0 10px rgba(255,230,0,0.5);
+        }
+        .score { margin-bottom: 1rem; font-size: 0.9rem; color: #aaaad0; }
+        .restart-btn {
+            width: 100%;
+            margin-top: 1.5rem;
+            background: #00f3ff;
+            color: #05050a;
+            border: none;
+            padding: 0.8rem;
+            border-radius: 8px;
+            font-weight: 800;
+            cursor: pointer;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <a href="pabellondejuegos.html" class="back-btn">&#8592; Volver</a>
+    
+    <div class="game-container">
+        <h1>TRIVIA NEXUS</h1>
+        <div class="score" id="scoreDisplay">Puntuación: 0 / 4</div>
+        <div class="question" id="questionText">Cargando pregunta...</div>
+        <div class="options" id="optionsContainer"></div>
+        <button class="restart-btn" id="restartBtn" onclick="initGame()">Reiniciar Trivia</button>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                q: "¿Qué lenguaje da estructura semántica estándar a una página web?",
+                options: ["CSS", "HTML", "JavaScript", "Python"],
+                correct: 1
+            },
+            {
+                q: "¿Qué librería ligera utilizamos en el proyecto para renderizar la galería 3D?",
+                options: ["Three.js", "React", "Angular", "Vue"],
+                correct: 0
+            },
+            {
+                q: "¿Qué propiedad de CSS se utiliza para crear cuadrículas de diseño adaptativo?",
+                options: ["Flexbox", "Grid", "Float", "Position Absolute"],
+                correct: 1
+            },
+            {
+                q: "¿Qué método de JavaScript permite almacenar datos localmente en el navegador de forma persistente?",
+                options: ["cookieJar", "localStorage", "sessionCache", "sqlServer"],
+                correct: 1
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+
+        const questionText = document.getElementById("questionText");
+        const optionsContainer = document.getElementById("optionsContainer");
+        const scoreDisplay = document.getElementById("scoreDisplay");
+        const restartBtn = document.getElementById("restartBtn");
+
+        function initGame() {
+            currentQuestion = 0;
+            score = 0;
+            restartBtn.style.display = "none";
+            scoreDisplay.textContent = `Puntuación: ${score} / ${questions.length}`;
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            if (currentQuestion < questions.length) {
+                let qData = questions[currentQuestion];
+                questionText.textContent = `${currentQuestion + 1}. ${qData.q}`;
+                optionsContainer.innerHTML = "";
+                
+                qData.options.forEach((opt, index) => {
+                    let btn = document.createElement("button");
+                    btn.className = "option-btn";
+                    btn.textContent = opt;
+                    btn.onclick = () => selectOption(index);
+                    optionsContainer.appendChild(btn);
+                });
+            } else {
+                questionText.textContent = `¡Trivia completada! Puntuación final: ${score} / ${questions.length}`;
+                optionsContainer.innerHTML = "";
+                restartBtn.style.display = "block";
+            }
+        }
+
+        function selectOption(index) {
+            let qData = questions[currentQuestion];
+            let buttons = document.querySelectorAll(".option-btn");
+            
+            if (index === qData.correct) {
+                score++;
+                buttons[index].style.background = "#00ff88";
+                buttons[index].style.color = "#05050a";
+            } else {
+                buttons[index].style.background = "#ff0055";
+                buttons[index].style.color = "#fff";
+                buttons[qData.correct].style.background = "#00ff88";
+                buttons[qData.correct].style.color = "#05050a";
+            }
+
+            buttons.forEach(b => b.disabled = true);
+            scoreDisplay.textContent = `Puntuación: ${score} / ${questions.length}`;
+
+            setTimeout(() => {
+                currentQuestion++;
+                loadQuestion();
+            }, 1200);
+        }
+
+        initGame();
+    </script>
+</body>
+</html>
