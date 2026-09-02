@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arcade Zone | Buscaminas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #05050a;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #ff007f;
+            text-decoration: none;
+            font-weight: 600;
+            border: 1px solid #ff007f;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            box-shadow: 0 0 10px rgba(255, 0, 127, 0.2);
+            transition: 0.3s;
+        }
+        .back-btn:hover { background: #ff007f; color: #05050a; }
+        h1 {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 1.3rem;
+            color: #ff007f;
+            margin-bottom: 1.5rem;
+            text-shadow: 0 0 10px rgba(255,0,127,0.6);
+            text-align: center;
+        }
+        .game-container {
+            background: rgba(18, 18, 35, 0.8);
+            border: 2px solid #ff007f;
+            padding: 2rem;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 0 25px rgba(255, 0, 127, 0.2);
+        }
+        .board {
+            display: grid;
+            grid-template-columns: repeat(8, 35px);
+            grid-template-rows: repeat(8, 35px);
+            gap: 4px;
+            margin: 1.5rem 0;
+            justify-content: center;
+        }
+        .cell {
+            background: #111122;
+            border: 1px solid rgba(255,255,255,0.1);
+            font-weight: bold;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            user-select: none;
+            transition: 0.2s;
+        }
+        .cell:hover { background: #222244; }
+        .cell.revealed { background: #080814; border-color: #222; }
+        .cell.mine { background: #ff0055; color: #fff; }
+        .restart-btn {
+            background: #00f3ff;
+            color: #05050a;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0,243,255,0.4);
+        }
+        .restart-btn:hover { background: #33f5ff; }
+        .status { margin-bottom: 1rem; color: #aaaad0; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+    <a href="pabellondejuegos.html" class="back-btn">&#8592; Volver</a>
+    
+    <div class="game-container">
+        <h1>BUSCAMINAS</h1>
+        <div class="status" id="statusMsg">Despeja el sector sin detonar minas</div>
+        <div class="board" id="board"></div>
+        <button class="restart-btn" onclick="initGame()">Reiniciar Sector</button>
+    </div>
+
+    <script>
+        const size = 8;
+        const minesCount = 10;
+        let board = [];
+        let gameOver = false;
+
+        const boardElement = document.getElementById("board");
+        const statusMsg = document.getElementById("statusMsg");
+
+        function initGame() {
+            boardElement.innerHTML = "";
+            board = [];
+            gameOver = false;
+            statusMsg.textContent = "Despeja el sector sin detonar minas";
+
+            // Crear matriz vacía
+            let minesPlaced = 0;
+            for (let r = 0; r < size; r++) {
+                let row = [];
+                for (let c = 0; c < size; c++) {
+                    row.push({ row: r, col: c, mine: false, revealed: false, count: 0 });
+                }
+                board.push(row);
+            }
+
+            // Colocar minas aleatorias
+            while (minesPlaced < minesCount) {
+                let r = Math.floor(Math.random() * size);
+                let c = Math.floor(Math.random() * size);
+                if (!board[r][c].mine) {
+                    board[r][c].mine = true;
+                    minesPlaced++;
+                }
+            }
+
+            // Calcular números de proximidad
+            for (let r = 0; r < size; r++) {
+                for (let c = 0; c < size; c++) {
+                    if (!board[r][c].mine) {
+                        let count = 0;
+                        for (let dr = -1; dr <= 1; dr++) {
+                            for (let dc = -1; dc <= 1; dc++) {
+                                let nr = r + dr, nc = c + dc;
+                                if (nr >= 0 && nr < size && nc >= 0 && nc < size && board[nr][nc].mine) {
+                                    count++;
+                                }
+                            }
+                        }
+                        board[r][c].count = count;
+                    }
+                }
+            }
+
+            // Renderizar celdas en el DOM
+            for (let r = 0; r < size; r++) {
+                for (let c = 0; c < size; c++) {
+                    let cellDiv = document.createElement("div");
+                    cellDiv.className = "cell";
+                    cellDiv.dataset.row = r;
+                    cellDiv.dataset.col = c;
+                    cellDiv.addEventListener("click", () => clickCell(r, c));
+                    boardElement.appendChild(cellDiv);
+                    board[r][c].element = cellDiv;
+                }
+            }
+        }
+
+        function clickCell(r, c) {
+            if (gameOver || board[r][c].revealed) return;
+            let cell = board[r][c];
+            cell.revealed = true;
+            cell.element.classList.add("revealed");
+
+            if (cell.mine) {
+                cell.element.classList.add("mine");
+                cell.element.textContent = "💣";
+                statusMsg.textContent = "¡COLISIÓN DETECTADA! (GAME OVER)";
+                gameOver = true;
+                revealAllMines();
+                return;
+            }
+
+            if (cell.count > 0) {
+                cell.element.textContent = cell.count;
+            } else {
+                // Expandir si es 0
+                for (let dr = -1; dr <= 1; dr++) {
+                    for (let dc = -1; dc <= 1; dc++) {
+                        let nr = r + dr, nc = c + dc;
+                        if (nr >= 0 && nr < size && nc >= 0 && nc < size && !board[nr][nc].revealed) {
+                            clickCell(nr, nc);
+                        }
+                    }
+                }
+            }
+            checkWin();
+        }
+
+        function revealAllMines() {
+            board.forEach(row => row.forEach(cell => {
+                if (cell.mine) {
+                    cell.element.classList.add("mine");
+                    cell.element.textContent = "💣";
+                }
+            }));
+        }
+
+        function checkWin() {
+            let won = true;
+            board.forEach(row => row.forEach(cell => {
+                if (!cell.mine && !cell.revealed) won = false;
+            }));
+            if (won) {
+                statusMsg.textContent = "¡SECTOR DESPEJADO CON ÉXITO! (VICTORIA)";
+                gameOver = true;
+            }
+        }
+
+        initGame();
+    </script>
+</body>
+</html>
