@@ -61,7 +61,7 @@
             font-size: 0.85rem;
             color: #888;
         }
-        .switch-text a { color: #fff; text-decoration: none; font-weight: 600; }
+        .switch-text a { color: #fff; text-decoration: none; font-weight: 600; cursor: pointer; }
         .error-msg { color: #ff6b6b; font-size: 0.8rem; margin-top: 0.5rem; display: none; }
     </style>
 </head>
@@ -84,11 +84,11 @@
             <div id="loginError" class="error-msg">Usuario o contraseña incorrectos.</div>
             <button type="submit" class="btn">Entrar</button>
             <div class="switch-text">
-                ¿No tienes cuenta? <a href="#" id="showRegister">Regístrate</a>
+                ¿No tienes cuenta? <a id="showRegister">Regístrate</a>
             </div>
         </form>
 
-        <!-- Formulario de Registro (Oculto por defecto) -->
+        <!-- Formulario de Registro -->
         <form id="registerForm" style="display: none;">
             <h2 style="margin-bottom: 1.5rem; font-size: 1.5rem; text-align: center;">Crear Cuenta</h2>
             <div class="form-group">
@@ -102,88 +102,97 @@
             <div id="regError" class="error-msg">El usuario ya existe.</div>
             <button type="submit" class="btn">Registrarse</button>
             <div class="switch-text">
-                ¿Ya tienes cuenta? <a href="#" id="showLogin">Inicia sesión</a>
+                ¿Ya tienes cuenta? <a id="showLogin">Inicia sesión</a>
             </div>
         </form>
     </div>
 
     <script>
-        const loginForm = document.getElementById('loginForm');
-        const registerForm = document.getElementById('registerForm');
-        const showRegister = document.getElementById('showRegister');
-        const showLogin = document.getElementById('showLogin');
+        document.addEventListener("DOMContentLoaded", () => {
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            const showRegister = document.getElementById('showRegister');
+            const showLogin = document.getElementById('showLogin');
 
-        // Alternar vistas
-        showRegister.addEventListener('click', (e) => {
-            e.preventDefault();
-            loginForm.style.display = 'none';
-            registerForm.style.display = 'block';
-        });
+            // Cambiar a vista de registro
+            showRegister.addEventListener('click', (e) => {
+                e.preventDefault();
+                loginForm.style.display = 'none';
+                registerForm.style.display = 'block';
+            });
 
-        showLogin.addEventListener('click', (e) => {
-            e.preventDefault();
-            registerForm.style.display = 'none';
-            loginForm.style.display = 'block';
-        });
+            // Cambiar a vista de login
+            showLogin.addEventListener('click', (e) => {
+                e.preventDefault();
+                registerForm.style.display = 'none';
+                loginForm.style.display = 'block';
+            });
 
-        // Lógica de Registro con Backend SQL
-        registerForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const username = document.getElementById('regUser').value;
-            const password = document.getElementById('regPass').value;
+            // Lógica de Registro
+            registerForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const username = document.getElementById('regUser').value.trim();
+                const password = document.getElementById('regPass').value.trim();
+                const regError = document.getElementById('regError');
 
-            try {
-                const response = await fetch('/api/register', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password })
-                });
-                const data = await response.json();
+                try {
+                    const response = await fetch('/api/register', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username, password })
+                    });
+                    
+                    const data = await response.json();
 
-                if(data.success) {
-                    alert('¡Registro exitoso! Ahora puedes iniciar sesión.');
-                    registerForm.reset();
-                    document.getElementById('regError').style.display = 'none';
-                    registerForm.style.display = 'none';
-                    loginForm.style.display = 'block';
-                } else {
-                    const regError = document.getElementById('regError');
-                    regError.innerText = data.message;
+                    if (data.success) {
+                        alert('¡Registro exitoso! Ahora puedes iniciar sesión.');
+                        registerForm.reset();
+                        regError.style.display = 'none';
+                        registerForm.style.display = 'none';
+                        loginForm.style.display = 'block';
+                    } else {
+                        regError.innerText = data.message || "Error al registrarse";
+                        regError.style.display = 'block';
+                    }
+                } catch (error) {
+                    console.error('Error de red:', error);
+                    regError.innerText = "Error de conexión con el servidor.";
                     regError.style.display = 'block';
                 }
-            } catch (error) {
-                console.error('Error de conexión:', error);
-            }
-        });
+            });
 
-        // Lógica de Login con Backend SQL
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const username = document.getElementById('loginUser').value;
-            const password = document.getElementById('loginPass').value;
+            // Lógica de Login
+            loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const username = document.getElementById('loginUser').value.trim();
+                const password = document.getElementById('loginPass').value.trim();
+                const loginError = document.getElementById('loginError');
 
-            try {
-                const response = await fetch('/api/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password })
-                });
-                const data = await response.json();
+                try {
+                    const response = await fetch('/api/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username, password })
+                    });
 
-                if(data.success) {
-                    localStorage.setItem('aetheria_logged', 'true');
-                    localStorage.setItem('aetheria_current_user', data.username);
-                    
-                    const redirectPage = localStorage.getItem('aetheria_redirect') || 'museum.html';
-                    window.location.href = redirectPage;
-                } else {
-                    const loginError = document.getElementById('loginError');
-                    loginError.innerText = data.message;
+                    const data = await response.json();
+
+                    if (data.success) {
+                        localStorage.setItem('aetheria_logged', 'true');
+                        localStorage.setItem('aetheria_current_user', data.username);
+                        
+                        const redirectPage = localStorage.getItem('aetheria_redirect') || 'museum.html';
+                        window.location.href = redirectPage;
+                    } else {
+                        loginError.innerText = data.message || "Usuario o contraseña incorrectos";
+                        loginError.style.display = 'block';
+                    }
+                } catch (error) {
+                    console.error('Error de red:', error);
+                    loginError.innerText = "Error de conexión con el servidor.";
                     loginError.style.display = 'block';
                 }
-            } catch (error) {
-                console.error('Error de conexión:', error);
-            }
+            });
         });
     </script>
 </body>
