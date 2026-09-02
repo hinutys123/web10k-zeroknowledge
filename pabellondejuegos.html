@@ -110,7 +110,6 @@
         .arcade-card {
             background: rgba(18, 18, 35, 0.7);
             border: 2px solid rgba(255, 255, 255, 0.1);
-            padding: 2.5rem;
             border-radius: 16px;
             display: flex;
             flex-direction: column;
@@ -128,6 +127,7 @@
             height: 4px;
             background: #00f3ff;
             transition: background 0.3s;
+            z-index: 2;
         }
         .arcade-card:hover {
             transform: translateY(-8px);
@@ -139,24 +139,52 @@
             box-shadow: 0 0 10px #ff007f;
         }
 
+        /* Contenedor de Imagen de Tarjeta */
+        .card-image-container {
+            width: 100%;
+            height: 180px;
+            overflow: hidden;
+            background: #000;
+            position: relative;
+        }
+        .card-image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.85;
+            transition: transform 0.4s ease, opacity 0.4s ease;
+        }
+        .arcade-card:hover .card-image-container img {
+            transform: scale(1.08);
+            opacity: 1;
+        }
+
+        .card-content {
+            padding: 2rem 2rem 1.5rem 2rem;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            justify-content: space-between;
+        }
+
         .arcade-card h3 {
-            font-size: 1.6rem;
+            font-size: 1.4rem;
             font-weight: 800;
-            margin-bottom: 1rem;
+            margin-bottom: 0.8rem;
             color: #fff;
             text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
         }
         .arcade-card p {
             color: #aaaad0;
             line-height: 1.6;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
             font-size: 0.95rem;
         }
         
         /* Botones Neón Interactivos */
         .arcade-btn {
             display: inline-block;
-            padding: 0.9rem 2rem;
+            padding: 0.8rem 1.5rem;
             background: transparent;
             color: #00f3ff;
             border: 2px solid #00f3ff;
@@ -181,6 +209,9 @@
             border-color: #ff007f;
             box-shadow: 0 0 25px rgba(255, 0, 127, 0.3);
         }
+        .arcade-card.pink:hover::before {
+            background: #ffe600;
+        }
         .arcade-card.pink .arcade-btn {
             color: #ff007f;
             border-color: #ff007f;
@@ -195,6 +226,9 @@
         .arcade-card.yellow:hover {
             border-color: #ffe600;
             box-shadow: 0 0 25px rgba(255, 230, 0, 0.3);
+        }
+        .arcade-card.yellow:hover::before {
+            background: #00f3ff;
         }
         .arcade-card.yellow .arcade-btn {
             color: #ffe600;
@@ -246,29 +280,44 @@
             <div class="arcade-grid">
                 <!-- Ahorcado -->
                 <div class="arcade-card">
-                    <div>
-                        <h3>AHORCADO_V1</h3>
-                        <p>Descubre la palabra secreta oculta antes de que se complete el circuito y pierdas la conexión en este clásico desafío de letras.</p>
+                    <div class="card-image-container">
+                        <img src="https://st2.depositphotos.com/5485596/8571/v/450/depositphotos_85710850-stock-illustration-hangman-doodle.jpg" alt="Juego Ahorcado">
                     </div>
-                    <a href="ahorcado.html" class="arcade-btn">Iniciar Juego</a>
+                    <div class="card-content">
+                        <div>
+                            <h3>AHORCADO_V1</h3>
+                            <p>Descubre la palabra secreta oculta antes de que se complete el circuito y pierdas la conexión.</p>
+                        </div>
+                        <a href="ahorcado.html" class="arcade-btn">Iniciar Juego</a>
+                    </div>
                 </div>
 
                 <!-- Buscaminas -->
                 <div class="arcade-card pink">
-                    <div>
-                        <h3>BUSCAMINAS_PRO</h3>
-                        <p>Despeja el sector de celdas utilizando probabilidades numéricas. Un solo error y el sistema colapsará por completo.</p>
+                    <div class="card-image-container">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQgjqnP3pSBDVQG1OukTXQd4_8ImfAnfZBMwdredStg4A&s=10" alt="Juego Buscaminas">
                     </div>
-                    <a href="buscaminas.html" class="arcade-btn">Iniciar Juego</a>
+                    <div class="card-content">
+                        <div>
+                            <h3>BUSCAMINAS_PRO</h3>
+                            <p>Despeja el sector de celdas utilizando probabilidades numéricas sin detonar ninguna mina.</p>
+                        </div>
+                        <a href="buscaminas.html" class="arcade-btn">Iniciar Juego</a>
+                    </div>
                 </div>
 
                 <!-- Preguntados -->
                 <div class="arcade-card yellow">
-                    <div>
-                        <h3>TRIVIA_NEXUS</h3>
-                        <p>Demuestra tu dominio absoluto de la cultura geek, historia y desarrollo web respondiendo bajo presión de tiempo.</p>
+                    <div class="card-image-container">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcStleRCAXBGT95uxq9z3vv24lzY_kNM4dXYljGdVY299Q&s=10" alt="Juego Preguntados">
                     </div>
-                    <a href="preguntados.html" class="arcade-btn">Iniciar Juego</a>
+                    <div class="card-content">
+                        <div>
+                            <h3>TRIVIA_NEXUS</h3>
+                            <p>Demuestra tu dominio absoluto respondiendo preguntas bajo presión cronometrada.</p>
+                        </div>
+                        <a href="preguntados.html" class="arcade-btn">Iniciar Juego</a>
+                    </div>
                 </div>
             </div>
         </section>
