@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arcade Zone | Ahorcado</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #05050a;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #00f3ff;
+            text-decoration: none;
+            font-weight: 600;
+            border: 1px solid #00f3ff;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            box-shadow: 0 0 10px rgba(0, 243, 255, 0.2);
+            transition: 0.3s;
+        }
+        .back-btn:hover { background: #00f3ff; color: #05050a; }
+        h1 {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 1.5rem;
+            color: #00f3ff;
+            margin-bottom: 2rem;
+            text-shadow: 0 0 10px rgba(0,243,255,0.6);
+            text-align: center;
+        }
+        .game-container {
+            background: rgba(18, 18, 35, 0.8);
+            border: 2px solid #00f3ff;
+            padding: 2.5rem;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 0 25px rgba(0, 243, 255, 0.2);
+            max-width: 500px;
+            width: 100%;
+        }
+        .word-display {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 2rem;
+            letter-spacing: 15px;
+            margin: 2rem 0;
+            color: #ffe600;
+            text-shadow: 0 0 10px rgba(255, 230, 0, 0.5);
+        }
+        .keyboard {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            margin-top: 1.5rem;
+        }
+        .key-btn {
+            background: #111122;
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 10px 0;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+        .key-btn:hover:not(:disabled) {
+            background: #00f3ff;
+            color: #05050a;
+            box-shadow: 0 0 10px #00f3ff;
+        }
+        .key-btn:disabled {
+            background: #222;
+            color: #555;
+            border-color: #333;
+            cursor: not-allowed;
+        }
+        .status {
+            margin-top: 1rem;
+            font-size: 0.95rem;
+            color: #aaaad0;
+        }
+        .restart-btn {
+            margin-top: 1.5rem;
+            background: #ff007f;
+            color: #fff;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255,0,127,0.4);
+            display: none;
+        }
+        .restart-btn:hover { background: #ff3399; }
+    </style>
+</head>
+<body>
+    <a href="pabellondejuegos.html" class="back-btn">&#8592; Volver</a>
+    
+    <div class="game-container">
+        <h1>AHORCADO</h1>
+        <div class="status" id="attempts">Intentos restantes: 6</div>
+        <div class="word-display" id="wordDisplay">_ _ _ _ _</div>
+        <div class="keyboard" id="keyboard"></div>
+        <button class="restart-btn" id="restartBtn" onclick="initGame()">Reiniciar Sistema</button>
+    </div>
+
+    <script>
+        const words = ["JAVASCRIPT", "DEVELOPER", "THREEJS", "INTERACTIVE", "ARCADE", "PIXEL", "NEON"];
+        let selectedWord = "";
+        let guessedLetters = [];
+        let remainingAttempts = 6;
+
+        const wordDisplay = document.getElementById("wordDisplay");
+        const keyboard = document.getElementById("keyboard");
+        const attemptsDisplay = document.getElementById("attempts");
+        const restartBtn = document.getElementById("restartBtn");
+
+        function initGame() {
+            selectedWord = words[Math.floor(Math.random() * words.length)];
+            guessedLetters = [];
+            remainingAttempts = 6;
+            restartBtn.style.display = "none";
+            attemptsDisplay.textContent = `Intentos restantes: ${remainingAttempts}`;
+            
+            updateWordDisplay();
+            createKeyboard();
+        }
+
+        function updateWordDisplay() {
+            let displayed = selectedWord.split("").map(letter => guessedLetters.includes(letter) ? letter : "_").join(" ");
+            wordDisplay.textContent = displayed;
+
+            if (!displayed.includes("_")) {
+                attemptsDisplay.textContent = "¡SISTEMA HACKEADO CON ÉXITO! (VICTORIA)";
+                disableKeyboard();
+            }
+        }
+
+        function createKeyboard() {
+            keyboard.innerHTML = "";
+            for (let i = 65; i <= 90; i++) {
+                let letter = String.fromCharCode(i);
+                let btn = document.createElement("button");
+                btn.textContent = letter;
+                btn.className = "key-btn";
+                btn.onclick = () => handleGuess(letter, btn);
+                keyboard.appendChild(btn);
+            }
+        }
+
+        function handleGuess(letter, btn) {
+            btn.disabled = true;
+            if (selectedWord.includes(letter)) {
+                guessedLetters.push(letter);
+                updateWordDisplay();
+            } else {
+                remainingAttempts--;
+                attemptsDisplay.textContent = `Intentos restantes: ${remainingAttempts}`;
+                if (remainingAttempts === 0) {
+                    wordDisplay.textContent = selectedWord;
+                    attemptsDisplay.textContent = "¡FALLO CRÍTICO! (GAME OVER)";
+                    disableKeyboard();
+                }
+            }
+        }
+
+        function disableKeyboard() {
+            document.querySelectorAll(".key-btn").forEach(b => b.disabled = true);
+            restartBtn.style.display = "inline-block";
+        }
+
+        initGame();
+    </script>
+</body>
+</html>
