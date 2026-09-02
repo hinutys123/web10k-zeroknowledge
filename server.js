@@ -13,8 +13,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Configuración de la conexión a MySQL/MariaDB en CentOS
 const db = mysql.createConnection({
     host: 'localhost',
-    user: 'root',
-    password: '', // Cambia esto si configuraste contraseña en MariaDB
+    user: 'aetheria_user',
+    password: 'tu_password_segura', // Cambia esto si configuraste contraseña en MariaDB
     database: 'aetheria_db'
 });
 
