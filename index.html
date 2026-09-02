@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SECURE_DROP // Zero-Knowledge Node</title>
+    <style>
+        :root {
+            --bg-color: #050706;
+            --panel-bg: #0b110e;
+            --accent-green: #00ff66;
+            --accent-dim: #004d20;
+            --text-main: #c0d1c7;
+            --text-muted: #5c7365;
+            --border-color: #14261b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--accent-green);
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-green);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--accent-green);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.3; }
+            50% { opacity: 1; }
+            100% { opacity: 0.3; }
+        }
+
+        main {
+            max-width: 600px;
+            width: 100%;
+            margin: 40px auto;
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            padding: 30px;
+            border-radius: 4px;
+            box-shadow: 0 0 30px rgba(0, 255, 102, 0.03);
+        }
+
+        h1 {
+            font-size: 1.4rem;
+            color: #fff;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        p.subtitle {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        input, textarea {
+            width: 100%;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            color: var(--accent-green);
+            padding: 12px;
+            font-size: 0.95rem;
+            border-radius: 2px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, textarea:focus {
+            border-color: var(--accent-green);
+        }
+
+        textarea {
+            resize: vertical;
+            height: 120px;
+        }
+
+        button {
+            width: 100%;
+            background-color: var(--accent-dim);
+            color: var(--accent-green);
+            border: 1px solid var(--accent-green);
+            padding: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        button:hover {
+            background-color: var(--accent-green);
+            color: var(--bg-color);
+        }
+
+        #response-box {
+            display: none;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: var(--bg-color);
+            border: 1px dashed var(--accent-green);
+            font-size: 0.85rem;
+            word-break: break-all;
+        }
+
+        footer {
+            border-top: 1px solid var(--border-color);
+            padding-top: 15px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .log-stream {
+            color: var(--accent-dim);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="status-indicator">
+            <div class="pulse-dot"></div>
+            <span>SECURE_NODE: CENTOS_9 // ACTIVE</span>
+        </div>
+        <div id="clock">00:00:00 UTC</div>
+    </header>
+
+    <main>
+        <h1>ANONYMOUS DROP BOX</h1>
+        <p class="subtitle">Client-side zero-knowledge wrapper. Data is processed locally before transit.</p>
+
+        <form id="dropForm">
+            <div class="form-group">
+                <label for="alias">Alias / Codename</label>
+                <input type="text" id="alias" placeholder="Optional codename..." autocomplete="off">
+            </div>
+
+            <div class="form-group">
+                <label for="message">Transmission Payload</label>
+                <textarea id="message" placeholder="Type confidential message here..." required></textarea>
+            </div>
+
+            <button type="submit" id="submitBtn">Encrypt & Transmit</button>
+        </form>
+
+        <div id="response-box">
+            <span style="color: var(--accent-green);">[SUCCESS] Payload hashed & dispatched.</span><br>
+            <span id="hash-output" style="color: var(--text-muted);"></span>
+        </div>
+    </main>
+
+    <footer>
+        <div>PROTOCOL: TLS_1.3 // END-TO-END ENCRYPTED</div>
+        <div class="log-stream" id="logStream">[SYS_READY]</div>
+    </footer>
+
+    <script>
+        // Live UTC Clock
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('clock').textContent = now.toISOString().slice(11, 19) + ' UTC';
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Simulated system logs
+        const logs = [
+            "[INFO] Handshake verified via port 443",
+            "[DEBUG] Memory integrity check: OK",
+            "[SEC] Firewall rules active - CentOS 9 policy",
+            "[NET] Latency optimal: 14ms",
+            "[INFO] Awaiting inbound payload..."
+        ];
+        let logIndex = 0;
+        setInterval(() => {
+            document.getElementById('logStream').textContent = logs[logIndex];
+            logIndex = (logIndex + 1) % logs.length;
+        }, 4000);
+
+        // Form Submit & Faux Encryption
+        document.getElementById('dropForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            const responseBox = document.getElementById('response-box');
+            const hashOutput = document.getElementById('hash-output');
+            
+            btn.textContent = "ENCRYPTING...";
+            btn.disabled = true;
+
+            setTimeout(() => {
+                // Generate a fake cryptographic hash signature
+                const randomHash = "sha256:" + Array.from({length: 40}, () => Math.floor(Math.random()*16).toString(16)).join('');
+                hashOutput.textContent = "RECEIPT_HASH: " + randomHash;
+                
+                btn.textContent = "TRANSMITTED";
+                responseBox.style.display = "block";
+                document.getElementById('message').value = "";
+                document.getElementById('alias').value = "";
+                
+                setTimeout(() => {
+                    btn.textContent = "Encrypt & Transmit";
+                    btn.disabled = false;
+                }, 3000);
+            }, 1200);
+        });
+    </script>
+</body>
+</html>
