@@ -165,34 +165,69 @@
         secondaryLight.position.set(-5, 0, 2);
         scene.add(secondaryLight);
 
-        // Crear una Galería Virtual Simple (Paredes y Marcos Flotantes)
+        // Crear una Galería Virtual Simple (Paredes)
         const wallMaterial = new THREE.MeshStandardMaterial({ color: 0x141414, roughness: 0.9 });
         const backWall = new THREE.Mesh(new THREE.BoxGeometry(20, 10, 0.2), wallMaterial);
         backWall.position.z = -3;
         scene.add(backWall);
 
-        // Marcos Flotantes (Simulando cuadros de arte)
+        // Función para convertir un emoji en una textura 3D
+        function createEmojiTexture(emoji) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 512;
+            canvas.height = 512;
+            const ctx = canvas.getContext('2d');
+
+            // Fondo del cuadro
+            ctx.fillStyle = '#111111';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Dibujar el emoji grande y centrado
+            ctx.font = '200px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(emoji, canvas.width / 2, canvas.height / 2);
+
+            const texture = new THREE.CanvasTexture(canvas);
+            return texture;
+        }
+
+        // Creamos las texturas con los emojis
+        const textureCenter = createEmojiTexture('🎨'); // Arte
+        const textureLeft = createEmojiTexture('🚀');   // Cohete
+        const textureRight = createEmojiTexture('💎');  // Diamante
+
+        // Materiales con los emojis
+        const materialCenter = new THREE.MeshBasicMaterial({ map: textureCenter });
+        const materialLeft = new THREE.MeshBasicMaterial({ map: textureLeft });
+        const materialRight = new THREE.MeshBasicMaterial({ map: textureRight });
+
+        // Geometría de los marcos y los lienzos
         const frameGeometry = new THREE.BoxGeometry(2.2, 3.2, 0.1);
         const canvasGeometry = new THREE.PlaneGeometry(2, 3);
-
-        // Material placeholder para los cuadros (puedes cambiar la textura por una imagen tuya)
-        const placeholderMaterial = new THREE.MeshBasicMaterial({ color: 0x333333 });
+        const frameMaterial = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.2 });
 
         // Cuadro Central
-        const frameCenter = new THREE.Mesh(frameGeometry, new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.2 }));
-        const artCenter = new THREE.Mesh(canvasGeometry, placeholderMaterial);
+        const frameCenter = new THREE.Mesh(frameGeometry, frameMaterial);
+        const artCenter = new THREE.Mesh(canvasGeometry, materialCenter);
         artCenter.position.z = 0.06;
         frameCenter.add(artCenter);
         frameCenter.position.set(0, 0, -2.8);
         scene.add(frameCenter);
 
         // Cuadro Izquierdo
-        const frameLeft = frameCenter.clone();
+        const frameLeft = new THREE.Mesh(frameGeometry, frameMaterial);
+        const artLeft = new THREE.Mesh(canvasGeometry, materialLeft);
+        artLeft.position.z = 0.06;
+        frameLeft.add(artLeft);
         frameLeft.position.set(-4, 0, -2.8);
         scene.add(frameLeft);
 
         // Cuadro Derecho
-        const frameRight = frameCenter.clone();
+        const frameRight = new THREE.Mesh(frameGeometry, frameMaterial);
+        const artRight = new THREE.Mesh(canvasGeometry, materialRight);
+        artRight.position.z = 0.06;
+        frameRight.add(artRight);
         frameRight.position.set(4, 0, -2.8);
         scene.add(frameRight);
 
@@ -204,7 +239,7 @@
 
         window.addEventListener('mousemove', (event) => {
             mouseX = (event.clientX / window.innerWidth) * 2 - 1;
-            mouseX = -(event.clientY / window.innerHeight) * 2 + 1;
+            mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
         });
 
         // Cambio de Fondos (3 Opciones)
@@ -246,8 +281,6 @@
         });
 
         // Bucle de Animación
-        const clock = new THREE.Clock();
-
         function animate() {
             requestAnimationFrame(animate);
 
