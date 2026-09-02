@@ -51,6 +51,7 @@
             margin-left: 2rem;
             font-size: 0.9rem;
             transition: color 0.3s;
+            cursor: pointer;
         }
         nav a:hover {
             color: #fff;
@@ -97,6 +98,7 @@
             opacity: 0;
             transform: translateY(30px);
             transition: background 0.3s, transform 0.3s;
+            cursor: pointer;
         }
         .btn:hover {
             background: #d4d4d4;
@@ -143,6 +145,7 @@
             font-size: 0.85rem;
             letter-spacing: 1px;
             transition: color 0.3s;
+            cursor: pointer;
         }
         .card-link:hover {
             color: #aaa;
@@ -161,13 +164,13 @@
 </head>
 <body>
 
-    <!-- Header conectado -->
+    <!-- Header conectado con redirección de autenticación -->
     <header>
         <a href="index.html" class="logo">AETHERIA</a>
         <nav>
             <a href="#about">Concepto</a>
-            <a href="pabellondejuegos.html">Pabellón de Juegos</a>
-            <a href="museum.html" style="color: #fff; font-weight: 600;">Entrar al Museo</a>
+            <a href="auth.html" onclick="localStorage.setItem('aetheria_redirect', 'pabellondejuegos.html')">Pabellón de Juegos</a>
+            <a href="auth.html" onclick="localStorage.setItem('aetheria_redirect', 'museum.html')" style="color: #fff; font-weight: 600;">Entrar al Museo</a>
         </nav>
     </header>
 
@@ -176,7 +179,7 @@
         <section class="hero">
             <h1>El Arte sin Fronteras Físicas</h1>
             <p>Explora una galería de arte digital inmersiva en 3D. Personaliza tu entorno, ajusta la iluminación y vive las obras como nunca antes.</p>
-            <a href="museum.html" class="btn">Ingresar al Museo 3D</a>
+            <a href="auth.html" onclick="localStorage.setItem('aetheria_redirect', 'museum.html')" class="btn">Ingresar al Museo 3D</a>
         </section>
 
         <!-- Sección de Concepto -->
@@ -201,7 +204,7 @@
             </div>
         </section>
 
-        <!-- Sección de Juegos (Conectada a los archivos reales) -->
+        <!-- Sección de Juegos -->
         <section id="games">
             <h2 style="font-size: 2.5rem; margin-bottom: 1rem;">Pabellón Interactivo</h2>
             <p style="color: #aaa; max-width: 700px; line-height: 1.6;">
@@ -211,21 +214,21 @@
                 <div class="card">
                     <h3>Juego del Ahorcado</h3>
                     <p>Pon a prueba tu vocabulario adivinando conceptos técnicos y artísticos antes de que se agoten tus intentos.</p>
-                    <a href="ahorcado.html" class="card-link">Jugar Ahora &#8594;</a>
+                    <a href="auth.html" onclick="localStorage.setItem('aetheria_redirect', 'ahorcado.html')" class="card-link">Jugar Ahora &#8594;</a>
                 </div>
                 <div class="card">
                     <h3>Buscaminas</h3>
                     <p>Despeja el campo minado calculando probabilidades y utilizando lógica numérica pura en un diseño interactivo.</p>
-                    <a href="buscaminas.html" class="card-link">Jugar Ahora &#8594;</a>
+                    <a href="auth.html" onclick="localStorage.setItem('aetheria_redirect', 'buscaminas.html')" class="card-link">Jugar Ahora &#8594;</a>
                 </div>
                 <div class="card">
                     <h3>Preguntados</h3>
                     <p>Demuestra tus conocimientos generales sobre desarrollo web, historia y tecnología a través de trivias cronometradas.</p>
-                    <a href="preguntados.html" class="card-link">Jugar Ahora &#8594;</a>
+                    <a href="auth.html" onclick="localStorage.setItem('aetheria_redirect', 'preguntados.html')" class="card-link">Jugar Ahora &#8594;</a>
                 </div>
             </div>
             <div style="margin-top: 2.5rem; text-align: center;">
-                <a href="pabellondejuegos.html" class="card-link" style="font-size: 1rem; border-bottom: 1px solid #fff; padding-bottom: 2px;">Ir al Salón Arcade Neón Completo &#8594;</a>
+                <a href="auth.html" onclick="localStorage.setItem('aetheria_redirect', 'pabellondejuegos.html')" class="card-link" style="font-size: 1rem; border-bottom: 1px solid #fff; padding-bottom: 2px;">Ir al Salón Arcade Neón Completo &#8594;</a>
             </div>
         </section>
     </main>
