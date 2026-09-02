@@ -27,6 +27,7 @@
             overflow: hidden;
             height: 100vh;
             width: 100vw;
+            user-select: none;
         }
         
         #webgl-container {
@@ -37,9 +38,13 @@
             height: 100vh;
             z-index: 1;
             outline: none;
+            cursor: grab;
+        }
+        #webgl-container:active {
+            cursor: grabbing;
         }
 
-        /* Pantalla de Carga (Loading Screen) */
+        /* Pantalla de Carga */
         #loader {
             position: fixed;
             inset: 0;
@@ -149,7 +154,7 @@
             border-color: var(--primary-glow);
         }
 
-        /* Modal de Información de la Obra (UI/UX Dinámico) */
+        /* Modal de Información de la Obra */
         .artwork-modal {
             position: absolute;
             bottom: 30px;
@@ -246,10 +251,10 @@
     </div>
 
     <div class="hud-element instructions">
-        <span class="dot"></span> Haz clic y arrastra para rotar la perspectiva o acércate a una obra
+        <span class="dot"></span> Haz clic y arrastra para navegar por el entorno 3D
     </div>
 
-    <!-- Modal Dinámico al Seleccionar Obras -->
+    <!-- Modal Dinámico -->
     <div class="hud-element artwork-modal" id="artModal">
         <h4 id="modalTitle">Título de la Obra</h4>
         <p id="modalDesc">Descripción curatorial de la pieza seleccionada dentro del espacio tridimensional.</p>
@@ -257,10 +262,8 @@
 
     <div id="webgl-container"></div>
 
-    <!-- Three.js + Postprocessing CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
-        // --- 1. CONFIGURACIÓN INICIAL & RENDERER ---
         const container = document.getElementById('webgl-container');
         
         const scene = new THREE.Scene();
@@ -279,7 +282,7 @@
         renderer.toneMappingExposure = 1.2;
         container.appendChild(renderer.domElement);
 
-        // --- 2. GESTOR DE CARGA DE TEXTURAS ---
+        // Gestor de Carga
         const manager = new THREE.LoadingManager();
         const loaderBar = document.getElementById('loaderBar');
         const loaderScreen = document.getElementById('loader');
@@ -298,7 +301,6 @@
 
         const textureLoader = new THREE.TextureLoader(manager);
         
-        // Carga de Texturas de Fondo optimizadas
         const bgTexture1 = textureLoader.load('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR5cncth3JTJ8vvNHYehwR1SmqzlMxX0gaWB5pEqsbk9w&s=10');
         const bgTexture2 = textureLoader.load('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTweMnnnUfa-R8CKraKwQpnf4K8AWlKM_Sxc0hNYPuBSA&s=10');
         const bgTexture3 = textureLoader.load('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRfaLsKD7k_I3f68uxiCkD5uzEBmXroiXr67NHJuiySwA&s=10');
@@ -309,7 +311,7 @@
             tex.repeat.set(6, 2);
         });
 
-        // --- 3. ARQUITECTURA DE LA GALERÍA ---
+        // Arquitectura de la Galería
         const wallMaterial = new THREE.MeshStandardMaterial({ 
             map: bgTexture1, 
             roughness: 0.85,
@@ -320,25 +322,19 @@
         backWall.receiveShadow = true;
         scene.add(backWall);
 
-        // Piso reflectante elegante
         const floorGeo = new THREE.PlaneGeometry(40, 20);
-        const floorMat = new THREE.MeshStandardMaterial({ 
-            color: 0x080808, 
-            roughness: 0.2, 
-            metalness: 0.8 
-        });
+        const floorMat = new THREE.MeshStandardMaterial({ color: 0x080808, roughness: 0.2, metalness: 0.8 });
         const floor = new THREE.Mesh(floorGeo, floorMat);
         floor.rotation.x = -Math.PI / 2;
         floor.position.y = -3.2;
         floor.receiveShadow = true;
         scene.add(floor);
 
-        // --- 4. ILUMINACIÓN CENITAL CÓNICA PROFESIONAL ---
+        // Iluminación
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.25);
         scene.add(ambientLight);
 
         const spotlights = [];
-        // Creamos 5 focos distribuidos uniformemente para iluminar las 10 obras
         for(let i = 0; i < 5; i++) {
             const spot = new THREE.SpotLight(0xfff5e6, 3.5, 12, Math.PI / 5, 0.4, 1.2);
             const xPos = (i - 2) * 6.5;
@@ -355,7 +351,7 @@
             spotlights.push(spot);
         }
 
-        // --- 5. CREACIÓN DE LAS 10 OBRAS EXACTAS ---
+        // Creación de las 10 Obras
         function createEmojiTexture(emoji) {
             const canvas = document.createElement('canvas');
             canvas.width = 512;
@@ -365,7 +361,6 @@
             ctx.fillStyle = '#0a0a0a';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Marco interno sutil en el canvas
             ctx.strokeStyle = '#222';
             ctx.lineWidth = 16;
             ctx.strokeRect(16, 16, canvas.width - 32, canvas.height - 32);
@@ -409,12 +404,10 @@
             art.position.z = 0.05;
             frame.add(art);
 
-            // Distribuir los 10 cuadros en dos niveles o en una amplia fila horizontal fluida
             const xPos = (index - 4.5) * 2.7;
             frame.position.set(xPos, 0, -3.3);
             frame.castShadow = true;
 
-            // Guardar metadatos para interactividad UX
             frame.userData = { title: artData.title, desc: artData.desc, index: index };
             interactiveObjects.push(frame);
 
@@ -422,42 +415,68 @@
         });
         scene.add(artworksGroup);
 
-        // --- 6. INTERACCIÓN Y RAYCASTING (UX) ---
-        const raycaster = new THREE.Raycaster();
-        const mouse = new THREE.Vector2();
-        let selectedObject = null;
+        // --- SISTEMA DE NAVEGACIÓN Y ARASTRE (DRAG TO MOVE) ---
+        let isDragging = false;
+        let previousMousePosition = { x: 0, y: 0 };
+        let cameraRotationX = 0;
+        let cameraRotationY = 0;
+        let targetCameraRotationX = 0;
+        let targetCameraRotationY = 0;
+        let dragDistance = 0; // Para diferenciar entre arrastre y clic simple
+
         const modal = document.getElementById('artModal');
         const modalTitle = document.getElementById('modalTitle');
         const modalDesc = document.getElementById('modalDesc');
 
-        window.addEventListener('pointermove', (event) => {
-            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        container.addEventListener('pointerdown', (e) => {
+            isDragging = true;
+            dragDistance = 0;
+            previousMousePosition = { x: e.clientX, y: e.clientY };
         });
 
-        window.addEventListener('click', () => {
-            raycaster.setFromCamera(mouse, camera);
-            const intersects = raycaster.intersectObjects(interactiveObjects);
+        container.addEventListener('pointermove', (e) => {
+            if (!isDragging) return;
 
-            if (intersects.length > 0) {
-                const obj = intersects[0].object.parent; // Es el marco (frame)
-                selectedObject = obj;
+            const deltaX = e.clientX - previousMousePosition.x;
+            const deltaY = e.clientY - previousMousePosition.y;
+
+            dragDistance += Math.abs(deltaX) + Math.abs(deltaY);
+
+            targetCameraRotationX -= deltaX * 0.003;
+            targetCameraRotationY += deltaY * 0.003;
+
+            // Limitar rotación vertical
+            targetCameraRotationY = Math.max(-0.4, Math.min(0.4, targetCameraRotationY));
+
+            previousMousePosition = { x: e.clientX, y: e.clientY };
+        });
+
+        container.addEventListener('pointerup', (e) => {
+            isDragging = false;
+
+            // Si el movimiento fue mínimo, se considera un clic para seleccionar obra
+            if (dragDistance < 5) {
+                const mouse = new THREE.Vector2(
+                    (e.clientX / window.innerWidth) * 2 - 1,
+                    -(e.clientY / window.innerHeight) * 2 + 1
+                );
                 
-                modalTitle.innerText = obj.userData.title;
-                modalDesc.innerText = obj.userData.desc;
-                modal.classList.add('active');
+                const raycaster = new THREE.Raycaster();
+                raycaster.setFromCamera(mouse, camera);
+                const intersects = raycaster.intersectObjects(interactiveObjects);
 
-                // Animación suave de cámara hacia la obra seleccionada
-                targetCameraX = obj.position.x;
-                targetCameraZ = obj.position.z + 1.8;
-            } else {
-                modal.classList.remove('active');
-                targetCameraX = 0;
-                targetCameraZ = 3.5;
+                if (intersects.length > 0) {
+                    const obj = intersects[0].object.parent;
+                    modalTitle.innerText = obj.userData.title;
+                    modalDesc.innerText = obj.userData.desc;
+                    modal.classList.add('active');
+                } else {
+                    modal.classList.remove('active');
+                }
             }
         });
 
-        // --- 7. CONTROLES DE INTERFAZ (DOM EVENTS) ---
+        // Controles de Interfaz
         document.getElementById('bgSelect').addEventListener('change', (e) => {
             const val = e.target.value;
             if (val === 'bg1') wallMaterial.map = bgTexture1;
@@ -478,34 +497,25 @@
             ambientLight.intensity = ambIntensity;
         });
 
-        // --- 8. BUCLE DE ANIMACIÓN Y PARALAJE ---
-        let mouseX = 0, mouseY = 0;
-        let targetCameraX = 0, targetCameraZ = 3.5;
-        let currentMouseX = 0, currentMouseY = 0;
-
-        window.addEventListener('mousemove', (e) => {
-            mouseX = (e.clientX / window.innerWidth - 0.5) * 0.8;
-            mouseY = (e.clientY / window.innerHeight - 0.5) * 0.4;
-        });
-
+        // Bucle de Animación
         function animate() {
             requestAnimationFrame(animate);
 
-            // Suavizado de cámara (Lerp) para fluidez cinematográfica
-            currentMouseX += (mouseX - currentMouseX) * 0.05;
-            currentMouseY += (mouseY - currentMouseY) * 0.05;
+            // Suavizado del movimiento de arrastre (Lerp)
+            cameraRotationX += (targetCameraRotationX - cameraRotationX) * 0.08;
+            cameraRotationY += (targetCameraRotationY - cameraRotationY) * 0.08;
 
-            camera.position.x += ((targetCameraX + currentMouseX) - camera.position.x) * 0.05;
-            camera.position.y += (-currentMouseY - camera.position.y) * 0.05;
-            camera.position.z += (targetCameraZ - camera.position.z) * 0.05;
-            
-            camera.lookAt(camera.position.x * 0.5, 0, -3.5);
+            camera.position.x = Math.sin(cameraRotationX) * 3.5;
+            camera.position.z = Math.cos(cameraRotationX) * 3.5;
+            camera.position.y = cameraRotationY * 2;
+
+            camera.lookAt(0, 0, -3.5);
 
             renderer.render(scene, camera);
         }
         animate();
 
-        // --- 9. RESPONSIVE DESIGN ---
+        // Responsive
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
