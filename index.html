@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aetheria | Museo de Arte Virtual 3D y Experiencias</title>
+    <title>Aetheria | Museo de Arte Virtual 3D y Pabellón Arcade</title>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Plus+Jakarta+Sans:wght@300;400;600&display=swap" rel="stylesheet">
     <!-- GSAP para animaciones -->
@@ -157,11 +157,12 @@
 </head>
 <body>
 
+    <!-- Header conectado -->
     <header>
-        <a href="#" class="logo">AETHERIA</a>
+        <a href="index.html" class="logo">AETHERIA</a>
         <nav>
             <a href="#about">Concepto</a>
-            <a href="#games">Pabellón de Juegos</a>
+            <a href="pabellondejuegos.html">Pabellón de Juegos</a>
             <a href="museum.html" style="color: #fff; font-weight: 600;">Entrar al Museo</a>
         </nav>
     </header>
@@ -196,28 +197,31 @@
             </div>
         </section>
 
-        <!-- Nueva Sección: Pabellón de Juegos Interactivos -->
+        <!-- Sección de Juegos (Conectada a los archivos reales) -->
         <section id="games">
             <h2 style="font-size: 2.5rem; margin-bottom: 1rem;">Pabellón Interactivo</h2>
             <p style="color: #aaa; max-width: 700px; line-height: 1.6;">
-                Además de la galería principal, el complejo cuenta con un área de recreación lógica implementada completamente con JavaScript puro, desafiando las capacidades del navegador.
+                Además de la galería principal, el complejo cuenta con un área de recreación lógica implementada completamente con JavaScript puro.
             </p>
             <div class="games-grid">
                 <div class="card">
                     <h3>Juego del Ahorcado</h3>
-                    <p>Pon a prueba tu vocabulario adivinando conceptos artísticos ocultos antes de que se agoten tus intentos en este clásico interactivo.</p>
-                    <a href="#" class="card-link">Jugar Ahora &#8594;</a>
+                    <p>Pon a prueba tu vocabulario adivinando conceptos técnicos y artísticos antes de que se agoten tus intentos.</p>
+                    <a href="ahorcado.html" class="card-link">Jugar Ahora &#8594;</a>
                 </div>
                 <div class="card">
                     <h3>Buscaminas</h3>
-                    <p>Despeja el campo minado calculando probabilidades y utilizando lógica numérica pura en un diseño minimalista y responsivo.</p>
-                    <a href="#" class="card-link">Jugar Ahora &#8594;</a>
+                    <p>Despeja el campo minado calculando probabilidades y utilizando lógica numérica pura en un diseño interactivo.</p>
+                    <a href="buscaminas.html" class="card-link">Jugar Ahora &#8594;</a>
                 </div>
                 <div class="card">
                     <h3>Preguntados</h3>
-                    <p>Demuestra tus conocimientos generales sobre historia del arte, cultura pop y ciencia a través de dinámicas de trivias cronometradas.</p>
-                    <a href="#" class="card-link">Jugar Ahora &#8594;</a>
+                    <p>Demuestra tus conocimientos generales sobre desarrollo web, historia y tecnología a través de trivias cronometradas.</p>
+                    <a href="preguntados.html" class="card-link">Jugar Ahora &#8594;</a>
                 </div>
+            </div>
+            <div style="margin-top: 2.5rem; text-align: center;">
+                <a href="pabellondejuegos.html" class="card-link" style="font-size: 1rem; border-bottom: 1px solid #fff; padding-bottom: 2px;">Ir al Salón Arcade Neón Completo &#8594;</a>
             </div>
         </section>
     </main>
@@ -237,4 +241,3 @@
     </script>
 </body>
 </html>
-
