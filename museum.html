@@ -4,21 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aetheria | Museo 3D Interactivo</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Plus+Jakarta+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --glass-bg: rgba(12, 12, 12, 0.75);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --primary-glow: #d4af37;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
+
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #000;
-            color: #fff;
+            background-color: #030303;
+            color: var(--text-main);
             overflow: hidden;
+            height: 100vh;
+            width: 100vw;
         }
         
-        /* Canvas 3D */
         #webgl-container {
             position: fixed;
             top: 0;
@@ -26,191 +36,372 @@
             width: 100vw;
             height: 100vh;
             z-index: 1;
+            outline: none;
         }
 
-        /* Panel de Control Flotante */
-        .controls-panel {
+        /* Pantalla de Carga (Loading Screen) */
+        #loader {
+            position: fixed;
+            inset: 0;
+            background: #030303;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.8s ease;
+        }
+        .loader-title {
+            font-family: 'Cinzel', serif;
+            font-size: 2rem;
+            letter-spacing: 4px;
+            margin-bottom: 1rem;
+            color: #fff;
+        }
+        .loader-bar-container {
+            width: 200px;
+            height: 2px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .loader-bar {
+            width: 0%;
+            height: 100%;
+            background: var(--primary-glow);
+            transition: width 0.3s ease;
+        }
+
+        /* UI / HUD Glassmorphism */
+        .hud-element {
             position: absolute;
-            top: 20px;
-            right: 20px;
             z-index: 10;
-            background: rgba(15, 15, 15, 0.85);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 14px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+        }
+
+        .back-btn {
+            top: 24px;
+            left: 24px;
+            padding: 0.7rem 1.25rem;
+            color: var(--text-main);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .controls-panel {
+            top: 24px;
+            right: 24px;
             padding: 1.5rem;
-            border-radius: 12px;
-            width: 260px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            width: 280px;
         }
         .controls-panel h3 {
             font-family: 'Cinzel', serif;
-            font-size: 1rem;
-            margin-bottom: 1rem;
-            letter-spacing: 1px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            padding-bottom: 0.5rem;
+            font-size: 0.95rem;
+            letter-spacing: 1.5px;
+            margin-bottom: 1.2rem;
+            border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 0.6rem;
+            color: var(--primary-glow);
         }
         .control-group {
             margin-bottom: 1rem;
         }
+        .control-group:last-child {
+            margin-bottom: 0;
+        }
         .control-group label {
             display: block;
-            font-size: 0.8rem;
-            color: #aaa;
-            margin-bottom: 0.4rem;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
         }
         select {
             width: 100%;
-            padding: 0.6rem;
-            background: #222;
-            color: #fff;
-            border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 6px;
+            padding: 0.7rem;
+            background: rgba(0, 0, 0, 0.5);
+            color: var(--text-main);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
             font-family: 'Plus Jakarta Sans', sans-serif;
-            cursor: pointer;
-        }
-        
-        /* Botón de Regreso */
-        .back-btn {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            z-index: 10;
-            padding: 0.6rem 1.2rem;
-            background: rgba(15, 15, 15, 0.85);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: #fff;
-            text-decoration: none;
-            border-radius: 6px;
             font-size: 0.85rem;
-            transition: background 0.3s;
+            cursor: pointer;
+            outline: none;
+            transition: border-color 0.3s;
         }
-        .back-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
+        select:hover, select:focus {
+            border-color: var(--primary-glow);
         }
 
-        /* Instrucciones de navegación */
-        .instructions {
+        /* Modal de Información de la Obra (UI/UX Dinámico) */
+        .artwork-modal {
             position: absolute;
-            bottom: 20px;
+            bottom: 30px;
             left: 50%;
-            transform: translateX(-50%);
-            z-index: 10;
-            background: rgba(15, 15, 15, 0.7);
-            backdrop-filter: blur(8px);
-            padding: 0.6rem 1.5rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            color: #aaa;
+            transform: translateX(-50%) translateY(30px);
+            padding: 1.25rem 2rem;
+            width: min(90%, 450px);
+            text-align: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             pointer-events: none;
-            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .artwork-modal.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+            pointer-events: auto;
+        }
+        .artwork-modal h4 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.1rem;
+            margin-bottom: 0.3rem;
+            color: #fff;
+        }
+        .artwork-modal p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .instructions {
+            bottom: 24px;
+            left: 24px;
+            padding: 0.6rem 1.2rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .dot {
+            width: 6px;
+            height: 6px;
+            background: #10b981;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #10b981;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.4; }
+            100% { opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            .controls-panel { top: auto; bottom: 90px; right: 20px; left: 20px; width: auto; }
+            .instructions { display: none; }
         }
     </style>
 </head>
 <body>
 
-    <a href="index.html" class="back-btn">&#8592; Volver al Inicio</a>
+    <!-- Pantalla de Carga -->
+    <div id="loader">
+        <div class="loader-title">AETHERIA</div>
+        <div class="loader-bar-container">
+            <div class="loader-bar" id="loaderBar"></div>
+        </div>
+    </div>
 
-    <div class="controls-panel">
-        <h3>Curaduría de Entorno</h3>
+    <a href="index.html" class="hud-element back-btn">&#8592; Volver</a>
+
+    <div class="hud-element controls-panel">
+        <h3>CURADURÍA 3D</h3>
         <div class="control-group">
-            <label for="bgSelect">Fondo / Ambiente</label>
+            <label for="bgSelect">Ambiente de Muro</label>
             <select id="bgSelect">
-                <option value="bg1">Ambiente 1 (Clásico/Oscuro)</option>
-                <option value="bg2">Ambiente 2 (Textura Textil)</option>
-                <option value="bg3">Ambiente 3 (Elegante/Gris)</option>
+                <option value="bg1">Clásico Oscuro (Seda)</option>
+                <option value="bg2">Textura Textil Nórdica</option>
+                <option value="bg3">Minimalista Cemento Pulido</option>
             </select>
         </div>
         <div class="control-group">
             <label for="lightSelect">Iluminación Cenital</label>
             <select id="lightSelect">
-                <option value="strong">Luz Fuerte (Intensa)</option>
-                <option value="medium">Luz Media (Estándar)</option>
-                <option value="soft">Luz Baja / Tenue</option>
+                <option value="strong">Luz Fuerte (Museo Dramático)</option>
+                <option value="medium" selected>Luz Media (Estándar)</option>
+                <option value="soft">Luz Baja (Ambiente Íntimo)</option>
             </select>
         </div>
     </div>
 
-    <div class="instructions">Usa el cursor para explorar la galería de 10 obras</div>
+    <div class="hud-element instructions">
+        <span class="dot"></span> Haz clic y arrastra para rotar la perspectiva o acércate a una obra
+    </div>
+
+    <!-- Modal Dinámico al Seleccionar Obras -->
+    <div class="hud-element artwork-modal" id="artModal">
+        <h4 id="modalTitle">Título de la Obra</h4>
+        <p id="modalDesc">Descripción curatorial de la pieza seleccionada dentro del espacio tridimensional.</p>
+    </div>
 
     <div id="webgl-container"></div>
 
-    <!-- Three.js vía CDN -->
+    <!-- Three.js + Postprocessing CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
+        // --- 1. CONFIGURACIÓN INICIAL & RENDERER ---
         const container = document.getElementById('webgl-container');
         
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x0b0b0b);
+        scene.background = new THREE.Color(0x030303);
+        scene.fog = new THREE.FogExp2(0x030303, 0.035);
 
-        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(0, 0, 4);
+        const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 0, 3.5);
 
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.2;
         container.appendChild(renderer.domElement);
 
-        // Carga de Texturas de Fondo Proporcionadas
-        const textureLoader = new THREE.TextureLoader();
+        // --- 2. GESTOR DE CARGA DE TEXTURAS ---
+        const manager = new THREE.LoadingManager();
+        const loaderBar = document.getElementById('loaderBar');
+        const loaderScreen = document.getElementById('loader');
+
+        manager.onProgress = (url, itemsLoaded, itemsTotal) => {
+            const progress = (itemsLoaded / itemsTotal) * 100;
+            loaderBar.style.width = progress + '%';
+        };
+
+        manager.onLoad = () => {
+            setTimeout(() => {
+                loaderScreen.style.opacity = '0';
+                setTimeout(() => loaderScreen.style.display = 'none', 800);
+            }, 300);
+        };
+
+        const textureLoader = new THREE.TextureLoader(manager);
+        
+        // Carga de Texturas de Fondo optimizadas
         const bgTexture1 = textureLoader.load('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR5cncth3JTJ8vvNHYehwR1SmqzlMxX0gaWB5pEqsbk9w&s=10');
         const bgTexture2 = textureLoader.load('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTweMnnnUfa-R8CKraKwQpnf4K8AWlKM_Sxc0hNYPuBSA&s=10');
         const bgTexture3 = textureLoader.load('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRfaLsKD7k_I3f68uxiCkD5uzEBmXroiXr67NHJuiySwA&s=10');
 
-        // Pared de la galería principal
+        [bgTexture1, bgTexture2, bgTexture3].forEach(tex => {
+            tex.wrapS = THREE.RepeatWrapping;
+            tex.wrapT = THREE.RepeatWrapping;
+            tex.repeat.set(6, 2);
+        });
+
+        // --- 3. ARQUITECTURA DE LA GALERÍA ---
         const wallMaterial = new THREE.MeshStandardMaterial({ 
             map: bgTexture1, 
-            roughness: 0.8 
+            roughness: 0.85,
+            metalness: 0.05
         });
-        const backWall = new THREE.Mesh(new THREE.BoxGeometry(32, 12, 0.2), wallMaterial);
-        backWall.position.z = -3.2;
+        const backWall = new THREE.Mesh(new THREE.BoxGeometry(40, 14, 0.3), wallMaterial);
+        backWall.position.z = -3.5;
+        backWall.receiveShadow = true;
         scene.add(backWall);
 
-        // Sistema de Iluminación Cenital Cónica (Spotlights simulando focos de techo)
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+        // Piso reflectante elegante
+        const floorGeo = new THREE.PlaneGeometry(40, 20);
+        const floorMat = new THREE.MeshStandardMaterial({ 
+            color: 0x080808, 
+            roughness: 0.2, 
+            metalness: 0.8 
+        });
+        const floor = new THREE.Mesh(floorGeo, floorMat);
+        floor.rotation.x = -Math.PI / 2;
+        floor.position.y = -3.2;
+        floor.receiveShadow = true;
+        scene.add(floor);
+
+        // --- 4. ILUMINACIÓN CENITAL CÓNICA PROFESIONAL ---
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.25);
         scene.add(ambientLight);
 
-        // Creamos focos cenitales que apuntan hacia abajo/frente
         const spotlights = [];
-        for(let i = 0; i < 3; i++) {
-            const spot = new THREE.SpotLight(0xfff3e0, 2.5, 15, Math.PI / 4, 0.5, 1);
-            spot.position.set((i - 1) * 5, 5, 1);
-            spot.target.position.set((i - 1) * 5, 0, -2.8);
+        // Creamos 5 focos distribuidos uniformemente para iluminar las 10 obras
+        for(let i = 0; i < 5; i++) {
+            const spot = new THREE.SpotLight(0xfff5e6, 3.5, 12, Math.PI / 5, 0.4, 1.2);
+            const xPos = (i - 2) * 6.5;
+            spot.position.set(xPos, 5.5, 1.2);
+            spot.target.position.set(xPos, 0, -3.5);
+            
+            spot.castShadow = true;
+            spot.shadow.bias = -0.001;
+            spot.shadow.mapSize.width = 1024;
+            spot.shadow.mapSize.height = 1024;
+
             scene.add(spot);
             scene.add(spot.target);
             spotlights.push(spot);
         }
 
-        // Función para generar texturas de las 10 obras con emojis artísticos variados
+        // --- 5. CREACIÓN DE LAS 10 OBRAS EXACTAS ---
         function createEmojiTexture(emoji) {
             const canvas = document.createElement('canvas');
             canvas.width = 512;
             canvas.height = 512;
             const ctx = canvas.getContext('2d');
 
-            ctx.fillStyle = '#121212';
+            ctx.fillStyle = '#0a0a0a';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            ctx.font = '180px sans-serif';
+            // Marco interno sutil en el canvas
+            ctx.strokeStyle = '#222';
+            ctx.lineWidth = 16;
+            ctx.strokeRect(16, 16, canvas.width - 32, canvas.height - 32);
+
+            ctx.font = '170px sans-serif';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillText(emoji, canvas.width / 2, canvas.height / 2);
 
-            return new THREE.CanvasTexture(canvas);
+            const tex = new THREE.CanvasTexture(canvas);
+            tex.colorSpace = THREE.SRGBColorSpace;
+            return tex;
         }
 
-        // Exactamente 10 obras de arte
-        const emojis = ['🎨', '🚀', '💎', '🏛️', '⚡', '🌀', '🔮', '🌿', '🔥', '🌊'];
-        const artworksGroup = new THREE.Group();
+        const artworksData = [
+            { emoji: '🎨', title: 'Génesis Cromática', desc: 'Exploración de pigmentos primarios en el arte contemporáneo digital.' },
+            { emoji: '🚀', title: 'Vector Interestelar', desc: 'Una mirada visual hacia la expansión y los límites de la exploración.' },
+            { emoji: '💎', title: 'Estructura Pura', desc: 'Geometría facetada que simula la perfección inalcanzable de los minerales.' },
+            { emoji: '🏛️', title: 'Herencia Clásica', desc: 'Reinterpretación moderna de los pilares fundamentales de la arquitectura.' },
+            { emoji: '⚡', title: 'Cinética Volt', desc: 'Captura estática de energía pura fluyendo a través del espacio.' },
+            { emoji: '🌀', title: 'Abismo Fractal', desc: 'Patrones recursivos diseñados para inducir a la contemplación profunda.' },
+            { emoji: '🔮', title: 'Óptica Etérea', desc: 'Estudio de la refracción lumínica en planos bidimensionales.' },
+            { emoji: '🌿', title: 'Organismo Vital', desc: 'Simbiosis entre la naturaleza orgánica y el minimalismo estructurado.' },
+            { emoji: '🔥', title: 'Ignea Primigenia', desc: 'Representación abstracta del movimiento y el calor en tonos oscuros.' },
+            { emoji: '🌊', title: 'Fluidez Abisal', desc: 'Dinámica de fluidos convertida en una experiencia visual estática.' }
+        ];
 
+        const artworksGroup = new THREE.Group();
         const frameGeometry = new THREE.BoxGeometry(1.8, 2.4, 0.08);
         const canvasGeometry = new THREE.PlaneGeometry(1.6, 2.2);
-        const frameMaterial = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.3 });
+        const frameMaterial = new THREE.MeshStandardMaterial({ color: 0x181818, roughness: 0.2, metalness: 0.5 });
 
-        // Distribuir los 10 cuadros a lo largo del muro
-        emojis.forEach((emoji, index) => {
-            const texture = createEmojiTexture(emoji);
+        const interactiveObjects = [];
+
+        artworksData.forEach((artData, index) => {
+            const texture = createEmojiTexture(artData.emoji);
             const artMaterial = new THREE.MeshBasicMaterial({ map: texture });
 
             const frame = new THREE.Mesh(frameGeometry, frameMaterial);
@@ -218,72 +409,103 @@
             art.position.z = 0.05;
             frame.add(art);
 
-            // Posicionamiento en fila distribuida en el eje X
-            const xPos = (index - 4.5) * 2.8;
-            frame.position.set(xPos, 0, -3.0);
-            
+            // Distribuir los 10 cuadros en dos niveles o en una amplia fila horizontal fluida
+            const xPos = (index - 4.5) * 2.7;
+            frame.position.set(xPos, 0, -3.3);
+            frame.castShadow = true;
+
+            // Guardar metadatos para interactividad UX
+            frame.userData = { title: artData.title, desc: artData.desc, index: index };
+            interactiveObjects.push(frame);
+
             artworksGroup.add(frame);
         });
         scene.add(artworksGroup);
 
-        // Control de Mouse / Paralaje suave
-        let mouseX = 0;
-        let mouseY = 0;
-        let targetX = 0;
-        let targetY = 0;
+        // --- 6. INTERACCIÓN Y RAYCASTING (UX) ---
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        let selectedObject = null;
+        const modal = document.getElementById('artModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalDesc = document.getElementById('modalDesc');
 
-        window.addEventListener('mousemove', (event) => {
-            mouseX = (event.clientX / window.innerWidth) * 2 - 1;
-            mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+        window.addEventListener('pointermove', (event) => {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
         });
 
-        // Selector de Fondos con las texturas proporcionadas
-        const bgSelect = document.getElementById('bgSelect');
-        bgSelect.addEventListener('change', (e) => {
-            const val = e.target.value;
-            if (val === 'bg1') {
-                wallMaterial.map = bgTexture1;
-            } else if (val === 'bg2') {
-                wallMaterial.map = bgTexture2;
-            } else if (val === 'bg3') {
-                wallMaterial.map = bgTexture3;
+        window.addEventListener('click', () => {
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(interactiveObjects);
+
+            if (intersects.length > 0) {
+                const obj = intersects[0].object.parent; // Es el marco (frame)
+                selectedObject = obj;
+                
+                modalTitle.innerText = obj.userData.title;
+                modalDesc.innerText = obj.userData.desc;
+                modal.classList.add('active');
+
+                // Animación suave de cámara hacia la obra seleccionada
+                targetCameraX = obj.position.x;
+                targetCameraZ = obj.position.z + 1.8;
+            } else {
+                modal.classList.remove('active');
+                targetCameraX = 0;
+                targetCameraZ = 3.5;
             }
+        });
+
+        // --- 7. CONTROLES DE INTERFAZ (DOM EVENTS) ---
+        document.getElementById('bgSelect').addEventListener('change', (e) => {
+            const val = e.target.value;
+            if (val === 'bg1') wallMaterial.map = bgTexture1;
+            else if (val === 'bg2') wallMaterial.map = bgTexture2;
+            else if (val === 'bg3') wallMaterial.map = bgTexture3;
             wallMaterial.needsUpdate = true;
         });
 
-        // Selector de Iluminación Cenital (Intensidades cónicas solicitadas)
-        const lightSelect = document.getElementById('lightSelect');
-        lightSelect.addEventListener('change', (e) => {
+        document.getElementById('lightSelect').addEventListener('change', (e) => {
             const val = e.target.value;
-            let intensity = 2.5;
-            if (val === 'strong') {
-                intensity = 4.0;
-                ambientLight.intensity = 0.4;
-            } else if (val === 'medium') {
-                intensity = 2.0;
-                ambientLight.intensity = 0.3;
-            } else if (val === 'soft') {
-                intensity = 0.8;
-                ambientLight.intensity = 0.15;
-            }
-            spotlights.forEach(spot => spot.intensity = intensity);
+            let intensity = 3.5;
+            let ambIntensity = 0.25;
+            if (val === 'strong') { intensity = 5.0; ambIntensity = 0.15; }
+            else if (val === 'medium') { intensity = 3.5; ambIntensity = 0.25; }
+            else if (val === 'soft') { intensity = 1.5; ambIntensity = 0.4; }
+            
+            spotlights.forEach(s => s.intensity = intensity);
+            ambientLight.intensity = ambIntensity;
         });
 
-        // Animación y renderizado
+        // --- 8. BUCLE DE ANIMACIÓN Y PARALAJE ---
+        let mouseX = 0, mouseY = 0;
+        let targetCameraX = 0, targetCameraZ = 3.5;
+        let currentMouseX = 0, currentMouseY = 0;
+
+        window.addEventListener('mousemove', (e) => {
+            mouseX = (e.clientX / window.innerWidth - 0.5) * 0.8;
+            mouseY = (e.clientY / window.innerHeight - 0.5) * 0.4;
+        });
+
         function animate() {
             requestAnimationFrame(animate);
 
-            targetX = mouseX * 2.5;
-            targetY = mouseY * 0.8;
-            camera.position.x += (targetX - camera.position.x) * 0.05;
-            camera.position.y += (targetY - camera.position.y) * 0.05;
-            camera.lookAt(camera.position.x, camera.position.y, -3);
+            // Suavizado de cámara (Lerp) para fluidez cinematográfica
+            currentMouseX += (mouseX - currentMouseX) * 0.05;
+            currentMouseY += (mouseY - currentMouseY) * 0.05;
+
+            camera.position.x += ((targetCameraX + currentMouseX) - camera.position.x) * 0.05;
+            camera.position.y += (-currentMouseY - camera.position.y) * 0.05;
+            camera.position.z += (targetCameraZ - camera.position.z) * 0.05;
+            
+            camera.lookAt(camera.position.x * 0.5, 0, -3.5);
 
             renderer.render(scene, camera);
         }
         animate();
 
-        // Responsive
+        // --- 9. RESPONSIVE DESIGN ---
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
