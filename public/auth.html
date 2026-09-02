@@ -126,45 +126,63 @@
             loginForm.style.display = 'block';
         });
 
-        // Lógica de Registro
-        registerForm.addEventListener('submit', (e) => {
+        // Lógica de Registro con Backend SQL
+        registerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const user = document.getElementById('regUser').value;
-            const pass = document.getElementById('regPass').value;
+            const username = document.getElementById('regUser').value;
+            const password = document.getElementById('regPass').value;
 
-            let users = JSON.parse(localStorage.getItem('aetheria_users')) || [];
-            
-            if(users.some(u => u.user === user)) {
-                document.getElementById('regError').style.display = 'block';
-                return;
+            try {
+                const response = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await response.json();
+
+                if(data.success) {
+                    alert('¡Registro exitoso! Ahora puedes iniciar sesión.');
+                    registerForm.reset();
+                    document.getElementById('regError').style.display = 'none';
+                    registerForm.style.display = 'none';
+                    loginForm.style.display = 'block';
+                } else {
+                    const regError = document.getElementById('regError');
+                    regError.innerText = data.message;
+                    regError.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error de conexión:', error);
             }
-
-            users.push({ user, pass });
-            localStorage.setItem('aetheria_users', JSON.stringify(users));
-            alert('¡Registro exitoso! Ahora puedes iniciar sesión.');
-            registerForm.reset();
-            registerForm.style.display = 'none';
-            loginForm.style.display = 'block';
         });
 
-        // Lógica de Login
-        loginForm.addEventListener('submit', (e) => {
+        // Lógica de Login con Backend SQL
+        loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const user = document.getElementById('loginUser').value;
-            const pass = document.getElementById('loginPass').value;
+            const username = document.getElementById('loginUser').value;
+            const password = document.getElementById('loginPass').value;
 
-            let users = JSON.parse(localStorage.getItem('aetheria_users')) || [];
-            const validUser = users.find(u => u.user === user && u.pass === pass);
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await response.json();
 
-            if(validUser) {
-                localStorage.setItem('aetheria_logged', 'true');
-                localStorage.setItem('aetheria_current_user', user);
-                
-                // Redirigir a la página que intentaba visitar (o al museo por defecto)
-                const redirectPage = localStorage.getItem('aetheria_redirect') || 'museum.html';
-                window.location.href = redirectPage;
-            } else {
-                document.getElementById('loginError').style.display = 'block';
+                if(data.success) {
+                    localStorage.setItem('aetheria_logged', 'true');
+                    localStorage.setItem('aetheria_current_user', data.username);
+                    
+                    const redirectPage = localStorage.getItem('aetheria_redirect') || 'museum.html';
+                    window.location.href = redirectPage;
+                } else {
+                    const loginError = document.getElementById('loginError');
+                    loginError.innerText = data.message;
+                    loginError.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error de conexión:', error);
             }
         });
     </script>
