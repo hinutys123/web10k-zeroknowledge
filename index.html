@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aetheria | Museo de Arte Virtual 3D</title>
+    <title>Aetheria | Museo de Arte Virtual 3D y Experiencias</title>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Plus+Jakarta+Sans:wght@300;400;600&display=swap" rel="stylesheet">
     <!-- GSAP para animaciones -->
@@ -105,10 +104,10 @@
             padding: 6rem 10%;
             border-top: 1px solid rgba(255, 255, 255, 0.05);
         }
-        .about-grid {
+        .about-grid, .games-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 3rem;
+            gap: 2.5rem;
             margin-top: 3rem;
         }
         .card {
@@ -116,6 +115,11 @@
             padding: 2.5rem;
             border-radius: 12px;
             border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: transform 0.3s, border-color 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255, 255, 255, 0.2);
         }
         .card h3 {
             margin-bottom: 1rem;
@@ -125,6 +129,19 @@
         .card p {
             color: #888;
             line-height: 1.6;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+        }
+        .card-link {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            transition: color 0.3s;
+        }
+        .card-link:hover {
+            color: #aaa;
         }
 
         /* Footer */
@@ -144,22 +161,24 @@
         <a href="#" class="logo">AETHERIA</a>
         <nav>
             <a href="#about">Concepto</a>
-            <a href="#features">Experiencia</a>
+            <a href="#games">Pabellón de Juegos</a>
             <a href="museum.html" style="color: #fff; font-weight: 600;">Entrar al Museo</a>
         </nav>
     </header>
 
     <main>
+        <!-- Hero Section -->
         <section class="hero">
             <h1>El Arte sin Fronteras Físicas</h1>
             <p>Explora una galería de arte digital inmersiva en 3D. Personaliza tu entorno, ajusta la iluminación y vive las obras como nunca antes.</p>
             <a href="museum.html" class="btn">Ingresar al Museo 3D</a>
         </section>
 
+        <!-- Sección de Concepto -->
         <section id="about">
             <h2 style="font-size: 2.5rem; margin-bottom: 1rem;">¿Qué es Aetheria?</h2>
             <p style="color: #aaa; max-width: 700px; line-height: 1.6;">
-                Aetheria es una plataforma museística experimental diseñada para redefinir cómo interactuamos con la curaduría artística en entornos web. Fusionando tecnología web moderna y diseño interactivo, eliminamos las barrereas tradicionales de espacio y tiempo.
+                Aetheria es una plataforma museística experimental diseñada para redefinir cómo interactuamos con la curaduría artística en entornos web. Fusionando tecnología web moderna y diseño interactivo, eliminamos las barreras tradicionales de espacio y tiempo.
             </p>
             <div class="about-grid">
                 <div class="card">
@@ -168,11 +187,36 @@
                 </div>
                 <div class="card">
                     <h3>Control Atmosférico</h3>
-                    <p>Modifica el diseño ambiental seleccionando entre múltiples entornos espaciales y configuraciones de luz adaptadas a cada obra.</p>
+                    <p>Modifica el diseño ambiental seleccionando entre múltiples entornos espaciales y configuraciones de luz.</p>
                 </div>
                 <div class="card">
                     <h3>Galería Viva</h3>
-                    <p>Marcos flotantes optimizados para exhibir piezas digitales o fotográficas con la más alta fidelidad visual en el navegador.</p>
+                    <p>Marcos flotantes optimizados para exhibir piezas digitales y elementos interactivos con la más alta fidelidad visual.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Nueva Sección: Pabellón de Juegos Interactivos -->
+        <section id="games">
+            <h2 style="font-size: 2.5rem; margin-bottom: 1rem;">Pabellón Interactivo</h2>
+            <p style="color: #aaa; max-width: 700px; line-height: 1.6;">
+                Además de la galería principal, el complejo cuenta con un área de recreación lógica implementada completamente con JavaScript puro, desafiando las capacidades del navegador.
+            </p>
+            <div class="games-grid">
+                <div class="card">
+                    <h3>Juego del Ahorcado</h3>
+                    <p>Pon a prueba tu vocabulario adivinando conceptos artísticos ocultos antes de que se agoten tus intentos en este clásico interactivo.</p>
+                    <a href="#" class="card-link">Jugar Ahora &#8594;</a>
+                </div>
+                <div class="card">
+                    <h3>Buscaminas</h3>
+                    <p>Despeja el campo minado calculando probabilidades y utilizando lógica numérica pura en un diseño minimalista y responsivo.</p>
+                    <a href="#" class="card-link">Jugar Ahora &#8594;</a>
+                </div>
+                <div class="card">
+                    <h3>Preguntados</h3>
+                    <p>Demuestra tus conocimientos generales sobre historia del arte, cultura pop y ciencia a través de dinámicas de trivias cronometradas.</p>
+                    <a href="#" class="card-link">Jugar Ahora &#8594;</a>
                 </div>
             </div>
         </section>
@@ -188,8 +232,9 @@
             const tl = gsap.timeline();
             tl.to(".hero h1", { opacity: 1, y: 0, duration: 1, ease: "power3.out" })
               .to(".hero p", { opacity: 1, y: 0, duration: 1, ease: "power3.out" }, "-=0.6")
-              .to(".hero btn, .hero .btn", { opacity: 1, y: 0, duration: 1, ease: "power3.out" }, "-=0.6");
+              .to(".hero .btn", { opacity: 1, y: 0, duration: 1, ease: "power3.out" }, "-=0.6");
         });
     </script>
 </body>
 </html>
+
