@@ -1,255 +1,194 @@
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SECURE_DROP // Zero-Knowledge Node</title>
+    <title>Aetheria | Museo de Arte Virtual 3D</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Plus+Jakarta+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <!-- GSAP para animaciones -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <style>
-        :root {
-            --bg-color: #050706;
-            --panel-bg: #0b110e;
-            --accent-green: #00ff66;
-            --accent-dim: #004d20;
-            --text-main: #c0d1c7;
-            --text-muted: #5c7365;
-            --border-color: #14261b;
-        }
-
         * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Courier New', Courier, monospace;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #0b0b0b;
+            color: #f5f5f5;
+            overflow-x: hidden;
+        }
+        h1, h2, h3, .logo {
+            font-family: 'Cinzel', serif;
+        }
+        
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 5%;
+            background: rgba(11, 11, 11, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .logo {
+            font-size: 1.5rem;
+            letter-spacing: 2px;
+            color: #fff;
+            text-decoration: none;
+        }
+        nav a {
+            color: #aaa;
+            text-decoration: none;
+            margin-left: 2rem;
+            font-size: 0.9rem;
+            transition: color 0.3s;
+        }
+        nav a:hover {
+            color: #fff;
         }
 
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            min-height: 100vh;
+        /* Hero Section */
+        .hero {
+            height: 100vh;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
-            padding: 20px;
-        }
-
-        header {
-            display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 15px;
-            font-size: 0.85rem;
-            color: var(--text-muted);
+            text-align: center;
+            padding: 0 1rem;
+            background: radial-gradient(circle at center, #1a1a1a 0%, #0b0b0b 100%);
         }
-
-        .status-indicator {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: var(--accent-green);
+        .hero h1 {
+            font-size: clamp(2.5rem, 5vw, 5rem);
+            margin-bottom: 1rem;
+            opacity: 0;
+            transform: translateY(30px);
         }
-
-        .pulse-dot {
-            width: 8px;
-            height: 8px;
-            background-color: var(--accent-green);
-            border-radius: 50%;
-            box-shadow: 0 0 8px var(--accent-green);
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 0.3; }
-            50% { opacity: 1; }
-            100% { opacity: 0.3; }
-        }
-
-        main {
+        .hero p {
+            font-size: clamp(1rem, 2vw, 1.25rem);
+            color: #aaa;
             max-width: 600px;
-            width: 100%;
-            margin: 40px auto;
-            background-color: var(--panel-bg);
-            border: 1px solid var(--border-color);
-            padding: 30px;
-            border-radius: 4px;
-            box-shadow: 0 0 30px rgba(0, 255, 102, 0.03);
+            margin-bottom: 2rem;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        .btn {
+            display: inline-block;
+            padding: 0.9rem 2.5rem;
+            background: #fff;
+            color: #0b0b0b;
+            text-decoration: none;
+            font-weight: 600;
+            letter-spacing: 1px;
+            border-radius: 50px;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: background 0.3s, transform 0.3s;
+        }
+        .btn:hover {
+            background: #d4d4d4;
+            transform: scale(1.05);
         }
 
-        h1 {
-            font-size: 1.4rem;
+        /* Sections */
+        section {
+            padding: 6rem 10%;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .about-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 3rem;
+            margin-top: 3rem;
+        }
+        .card {
+            background: #141414;
+            padding: 2.5rem;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .card h3 {
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
             color: #fff;
-            margin-bottom: 10px;
-            letter-spacing: 1px;
+        }
+        .card p {
+            color: #888;
+            line-height: 1.6;
         }
 
-        p.subtitle {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            margin-bottom: 25px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            margin-bottom: 8px;
-            text-transform: uppercase;
-        }
-
-        input, textarea {
-            width: 100%;
-            background-color: var(--bg-color);
-            border: 1px solid var(--border-color);
-            color: var(--accent-green);
-            padding: 12px;
-            font-size: 0.95rem;
-            border-radius: 2px;
-            outline: none;
-            transition: border-color 0.3s;
-        }
-
-        input:focus, textarea:focus {
-            border-color: var(--accent-green);
-        }
-
-        textarea {
-            resize: vertical;
-            height: 120px;
-        }
-
-        button {
-            width: 100%;
-            background-color: var(--accent-dim);
-            color: var(--accent-green);
-            border: 1px solid var(--accent-green);
-            padding: 12px;
-            font-weight: bold;
-            cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: background-color 0.3s, color 0.3s;
-        }
-
-        button:hover {
-            background-color: var(--accent-green);
-            color: var(--bg-color);
-        }
-
-        #response-box {
-            display: none;
-            margin-top: 20px;
-            padding: 15px;
-            background-color: var(--bg-color);
-            border: 1px dashed var(--accent-green);
-            font-size: 0.85rem;
-            word-break: break-all;
-        }
-
+        /* Footer */
         footer {
-            border-top: 1px solid var(--border-color);
-            padding-top: 15px;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .log-stream {
-            color: var(--accent-dim);
+            padding: 3rem 10%;
+            text-align: center;
+            background: #070707;
+            color: #666;
+            font-size: 0.85rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
         }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="status-indicator">
-            <div class="pulse-dot"></div>
-            <span>SECURE_NODE: CENTOS_9 // ACTIVE</span>
-        </div>
-        <div id="clock">00:00:00 UTC</div>
+        <a href="#" class="logo">AETHERIA</a>
+        <nav>
+            <a href="#about">Concepto</a>
+            <a href="#features">Experiencia</a>
+            <a href="museum.html" style="color: #fff; font-weight: 600;">Entrar al Museo</a>
+        </nav>
     </header>
 
     <main>
-        <h1>ANONYMOUS DROP BOX</h1>
-        <p class="subtitle">Client-side zero-knowledge wrapper. Data is processed locally before transit.</p>
+        <section class="hero">
+            <h1>El Arte sin Fronteras Físicas</h1>
+            <p>Explora una galería de arte digital inmersiva en 3D. Personaliza tu entorno, ajusta la iluminación y vive las obras como nunca antes.</p>
+            <a href="museum.html" class="btn">Ingresar al Museo 3D</a>
+        </section>
 
-        <form id="dropForm">
-            <div class="form-group">
-                <label for="alias">Alias / Codename</label>
-                <input type="text" id="alias" placeholder="Optional codename..." autocomplete="off">
+        <section id="about">
+            <h2 style="font-size: 2.5rem; margin-bottom: 1rem;">¿Qué es Aetheria?</h2>
+            <p style="color: #aaa; max-width: 700px; line-height: 1.6;">
+                Aetheria es una plataforma museística experimental diseñada para redefinir cómo interactuamos con la curaduría artística en entornos web. Fusionando tecnología web moderna y diseño interactivo, eliminamos las barrereas tradicionales de espacio y tiempo.
+            </p>
+            <div class="about-grid">
+                <div class="card">
+                    <h3>Arquitectura Inmersiva</h3>
+                    <p>Un espacio virtual tridimensional modelado a detalle para replicar la solemnidad y silencio de una gran galería contemporánea.</p>
+                </div>
+                <div class="card">
+                    <h3>Control Atmosférico</h3>
+                    <p>Modifica el diseño ambiental seleccionando entre múltiples entornos espaciales y configuraciones de luz adaptadas a cada obra.</p>
+                </div>
+                <div class="card">
+                    <h3>Galería Viva</h3>
+                    <p>Marcos flotantes optimizados para exhibir piezas digitales o fotográficas con la más alta fidelidad visual en el navegador.</p>
+                </div>
             </div>
-
-            <div class="form-group">
-                <label for="message">Transmission Payload</label>
-                <textarea id="message" placeholder="Type confidential message here..." required></textarea>
-            </div>
-
-            <button type="submit" id="submitBtn">Encrypt & Transmit</button>
-        </form>
-
-        <div id="response-box">
-            <span style="color: var(--accent-green);">[SUCCESS] Payload hashed & dispatched.</span><br>
-            <span id="hash-output" style="color: var(--text-muted);"></span>
-        </div>
+        </section>
     </main>
 
     <footer>
-        <div>PROTOCOL: TLS_1.3 // END-TO-END ENCRYPTED</div>
-        <div class="log-stream" id="logStream">[SYS_READY]</div>
+        <p>&copy; 2026 Aetheria Museum Project. Desarrollado con HTML, CSS, JavaScript y Three.js.</p>
     </footer>
 
     <script>
-        // Live UTC Clock
-        function updateClock() {
-            const now = new Date();
-            document.getElementById('clock').textContent = now.toISOString().slice(11, 19) + ' UTC';
-        }
-        setInterval(updateClock, 1000);
-        updateClock();
-
-        // Simulated system logs
-        const logs = [
-            "[INFO] Handshake verified via port 443",
-            "[DEBUG] Memory integrity check: OK",
-            "[SEC] Firewall rules active - CentOS 9 policy",
-            "[NET] Latency optimal: 14ms",
-            "[INFO] Awaiting inbound payload..."
-        ];
-        let logIndex = 0;
-        setInterval(() => {
-            document.getElementById('logStream').textContent = logs[logIndex];
-            logIndex = (logIndex + 1) % logs.length;
-        }, 4000);
-
-        // Form Submit & Faux Encryption
-        document.getElementById('dropForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const btn = document.getElementById('submitBtn');
-            const responseBox = document.getElementById('response-box');
-            const hashOutput = document.getElementById('hash-output');
-            
-            btn.textContent = "ENCRYPTING...";
-            btn.disabled = true;
-
-            setTimeout(() => {
-                // Generate a fake cryptographic hash signature
-                const randomHash = "sha256:" + Array.from({length: 40}, () => Math.floor(Math.random()*16).toString(16)).join('');
-                hashOutput.textContent = "RECEIPT_HASH: " + randomHash;
-                
-                btn.textContent = "TRANSMITTED";
-                responseBox.style.display = "block";
-                document.getElementById('message').value = "";
-                document.getElementById('alias').value = "";
-                
-                setTimeout(() => {
-                    btn.textContent = "Encrypt & Transmit";
-                    btn.disabled = false;
-                }, 3000);
-            }, 1200);
+        // Animaciones GSAP para el Hero
+        window.addEventListener('DOMContentLoaded', () => {
+            const tl = gsap.timeline();
+            tl.to(".hero h1", { opacity: 1, y: 0, duration: 1, ease: "power3.out" })
+              .to(".hero p", { opacity: 1, y: 0, duration: 1, ease: "power3.out" }, "-=0.6")
+              .to(".hero btn, .hero .btn", { opacity: 1, y: 0, duration: 1, ease: "power3.out" }, "-=0.6");
         });
     </script>
 </body>
