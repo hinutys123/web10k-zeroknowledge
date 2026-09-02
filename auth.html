@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aetheria | Acceso Restringido</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Plus+Jakarta+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #0b0b0b;
+            color: #f5f5f5;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .auth-container {
+            background: #141414;
+            padding: 3rem;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        h2, .logo { font-family: 'Cinzel', serif; }
+        .logo { display: block; text-align: center; font-size: 1.8rem; letter-spacing: 2px; color: #fff; text-decoration: none; margin-bottom: 2rem; }
+        .form-group { margin-bottom: 1.5rem; }
+        label { display: block; font-size: 0.85rem; color: #aaa; margin-bottom: 0.5rem; }
+        input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            background: #1f1f1f;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            color: #fff;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        input:focus { border-color: #fff; }
+        .btn {
+            width: 100%;
+            padding: 0.9rem;
+            background: #fff;
+            color: #0b0b0b;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 1rem;
+        }
+        .btn:hover { background: #d4d4d4; }
+        .switch-text {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.85rem;
+            color: #888;
+        }
+        .switch-text a { color: #fff; text-decoration: none; font-weight: 600; }
+        .error-msg { color: #ff6b6b; font-size: 0.8rem; margin-top: 0.5rem; display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="auth-container">
+        <a href="index.html" class="logo">AETHERIA</a>
+        
+        <!-- Formulario de Login -->
+        <form id="loginForm">
+            <h2 style="margin-bottom: 1.5rem; font-size: 1.5rem; text-align: center;">Iniciar Sesión</h2>
+            <div class="form-group">
+                <label>Usuario</label>
+                <input type="text" id="loginUser" required>
+            </div>
+            <div class="form-group">
+                <label>Contraseña</label>
+                <input type="password" id="loginPass" required>
+            </div>
+            <div id="loginError" class="error-msg">Usuario o contraseña incorrectos.</div>
+            <button type="submit" class="btn">Entrar</button>
+            <div class="switch-text">
+                ¿No tienes cuenta? <a href="#" id="showRegister">Regístrate</a>
+            </div>
+        </form>
+
+        <!-- Formulario de Registro (Oculto por defecto) -->
+        <form id="registerForm" style="display: none;">
+            <h2 style="margin-bottom: 1.5rem; font-size: 1.5rem; text-align: center;">Crear Cuenta</h2>
+            <div class="form-group">
+                <label>Nuevo Usuario</label>
+                <input type="text" id="regUser" required>
+            </div>
+            <div class="form-group">
+                <label>Nueva Contraseña</label>
+                <input type="password" id="regPass" required>
+            </div>
+            <div id="regError" class="error-msg">El usuario ya existe.</div>
+            <button type="submit" class="btn">Registrarse</button>
+            <div class="switch-text">
+                ¿Ya tienes cuenta? <a href="#" id="showLogin">Inicia sesión</a>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        const showRegister = document.getElementById('showRegister');
+        const showLogin = document.getElementById('showLogin');
+
+        // Alternar vistas
+        showRegister.addEventListener('click', (e) => {
+            e.preventDefault();
+            loginForm.style.display = 'none';
+            registerForm.style.display = 'block';
+        });
+
+        showLogin.addEventListener('click', (e) => {
+            e.preventDefault();
+            registerForm.style.display = 'none';
+            loginForm.style.display = 'block';
+        });
+
+        // Lógica de Registro
+        registerForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const user = document.getElementById('regUser').value;
+            const pass = document.getElementById('regPass').value;
+
+            let users = JSON.parse(localStorage.getItem('aetheria_users')) || [];
+            
+            if(users.some(u => u.user === user)) {
+                document.getElementById('regError').style.display = 'block';
+                return;
+            }
+
+            users.push({ user, pass });
+            localStorage.setItem('aetheria_users', JSON.stringify(users));
+            alert('¡Registro exitoso! Ahora puedes iniciar sesión.');
+            registerForm.reset();
+            registerForm.style.display = 'none';
+            loginForm.style.display = 'block';
+        });
+
+        // Lógica de Login
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const user = document.getElementById('loginUser').value;
+            const pass = document.getElementById('loginPass').value;
+
+            let users = JSON.parse(localStorage.getItem('aetheria_users')) || [];
+            const validUser = users.find(u => u.user === user && u.pass === pass);
+
+            if(validUser) {
+                localStorage.setItem('aetheria_logged', 'true');
+                localStorage.setItem('aetheria_current_user', user);
+                
+                // Redirigir a la página que intentaba visitar (o al museo por defecto)
+                const redirectPage = localStorage.getItem('aetheria_redirect') || 'museum.html';
+                window.location.href = redirectPage;
+            } else {
+                document.getElementById('loginError').style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
